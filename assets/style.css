@@ -57,3 +57,6 @@ summary{cursor:pointer;font-weight:600;color:var(--flow)}
 details[open] summary{margin-bottom:6px}
 .detail-h{margin-top:20px}
 .imglink{display:block}
+
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border:0;background:none;border-radius:10px}
