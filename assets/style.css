@@ -60,3 +60,6 @@ details[open] summary{margin-bottom:6px}
 
 .brand{display:flex;align-items:center;gap:12px}
 .logo{width:44px;height:44px;border:0;background:none;border-radius:10px}
+
+.brand{color:#0B2A4A}
+@media (prefers-color-scheme:dark){.brand{color:var(--ink)}}
