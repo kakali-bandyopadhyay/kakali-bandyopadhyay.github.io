@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deal Intelligence Case Study</title>
+<meta name="description" content="Product case study: from screening to an evidence-backed IC memo for human review. Personal prototype, synthetic data.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+<nav><a href="../index.html">← Portfolio</a></nav>
+<h1>Deal intelligence: from screening to an evidence-backed IC memo</h1>
+<p class="sub">Product case study – personal prototype</p>
+<p class="links">
+  <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
+  <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
+  <a href="../assets/deal-intelligence-case-study.pdf">PDF (4 pages)</a>
+</p>
+<p class="note">Synthetic companies, documents and figures. Illustrative screening criteria and policies. Not connected to, or based on, any firm's systems or processes. The system prepares evidence; people make every decision.</p>
+
+<dl class="glance">
+  <div><dt>Deal</dt><dd>One synthetic deal, Project Larkspur (fleet-maintenance software)</dd></div>
+  <div class="k-flow"><dt>Workflow</dt><dd>Screening → cited diligence Q&amp;A → source conflicts → six-control memo gate → human IC decision</dd></div>
+  <div><dt>Held-out results</dt><dd>4/10, 6/8 and 7/10 on three runs – reported separately, never combined</dd></div>
+  <div class="k-assume"><dt>Value <span class="lbl assume">Assumption</span></dt><dd>7.3–90.5 analyst hours saved per deal, base case 37.0 – assumed, not measured</dd></div>
+</dl>
+
+<p class="legend"><span class="lbl flow">Workflow</span><span class="lbl human">Human decision</span><span class="lbl assume">Assumption or open item</span><span class="lbl block">Blocker</span></p>
+<nav class="toc" aria-label="Sections">
+  <a href="#problem">Problem</a><a href="#workflow">Workflow</a><a href="#roadmap">Roadmap</a><a href="#evaluation">Evaluation</a><a href="#architecture">Architecture</a>
+</nav>
+
+<h2 id="problem">1. The problem and the users</h2>
+<p><b>Proposition:</b> one workflow that makes evidence, source conflicts, owners and approvals traceable before an investment committee (IC) decides.</p>
+<p>Problem hypothesis behind it (not an established industry finding): some of the most expensive late surprises in a deal come from evidence problems rather than missing analysis – a figure in the IC memo nobody can trace, two adviser reports that quietly disagree, or a red flag with no owner.</p>
+<div class="wrap"><table>
+<tr><th>User</th><th>Where they lose time or confidence</th><th>What they need</th></tr>
+<tr><td>Deal team</td><td>Finding which document says what; reconciling management, adviser and analysis figures; re-checking citations before IC</td><td>Cited answers, conflicts surfaced early, a memo assembled from sourced claims</td></tr>
+<tr><td>Investment committee</td><td>Cannot tell a sourced fact from a management claim or an expert-call rumour; sees one number where sources disagree</td><td>Every claim traceable; disagreements and the chosen basis visible; open risks owned</td></tr>
+<tr><td>Operating / value-creation team</td><td>Inherits red flags and assumptions after closing without the evidence behind them</td><td>Owned red flags with treatment and source, ready for the 100-day plan</td></tr>
+</table></div>
+
+<h2 id="workflow">2. The v1 workflow and the choices behind it</h2>
+<p>One synthetic deal, Project Larkspur (fleet-maintenance software), moves through one workflow:</p>
+<ul>
+<li><span class="lbl flow">Step 1</span> <b>Screening</b> against configurable criteria: each criterion MET, NOT MET, UNKNOWN or CONFLICTED with its source; no composite score; a conflicted criterion is never treated as passed; <span class="lbl human">Human decision</span> a person records the decision to advance.</li>
+<li><span class="lbl flow">Step 2</span> <b>Evidence changes:</b> the restated memorandum (revenue EUR 92m to 88m) and later adviser reports, version by version.</li>
+<li><span class="lbl flow">Step 3</span> <b>Diligence Q&amp;A:</b> every claim cites a passage; disagreements are shown, never resolved by the system; questions about other companies are refused with a reason.</li>
+<li><span class="lbl flow">Step 4</span> <b>Conflicts:</b> recurring revenue 80% vs 71%, adjusted EBITDA EUR 24m vs 21.5m, and net revenue retention (NRR) 112% vs 104%. <span class="lbl human">Human decision</span> a named person accepts a base case with a rationale; <span class="lbl assume">Open item</span> the conflict stays visible.</li>
+<li><span class="lbl flow">Step 5</span> <b>IC memo gate – six controls on the memo</b>, separate from the screening criteria: citations, no replaced versions, decisions on conflicted facts, owned red flags, maker-checker, expert-call-only claims labelled as unverified leads. <span class="lbl block">Blocker</span> any failed control stops the memo (Project Osier fails four).</li>
+<li><span class="lbl human">Human decision</span> <b>IC decision</b>, recorded against the exact memo version; any later edit makes it stale.</li>
+</ul>
+<p class="mute"><b>Not in v1:</b> sourcing feeds and CRM, automated extraction, embeddings, model-first answers – why each was left out is explained below.</p>
+<p>Passing the gate means the memo's evidence is in order, not that the deal meets the criteria. Larkspur passes all six controls, yet on the accepted base case NRR is 104%, below the illustrative 105% criterion <span class="lbl assume">Open item</span>. The synthetic IC chair records <span class="lbl human">Human decision</span> <b>PROCEED</b> to confirmatory diligence: the shortfall is priced in, with three conditions – a change-of-control waiver from the largest customer, valuation on EUR 21.5m EBITDA and 104% NRR, and a customer call on a possible 2027 re-tender. The threshold informs judgement; it does not decide the outcome.</p>
+<p><b>Left out of v1, deliberately:</b> sourcing feeds and CRM (trust in the evidence trail first); automated extraction (facts are hand-tagged so the workflow can be judged on its own); embeddings (keyword search is explainable – the held-out misses are the trigger to test them); model-first answers (the deterministic mode is the default).</p>
+
+<h2 id="roadmap">3. Roadmap and how competing requests are decided</h2>
+<div class="wrap"><table>
+<tr><th>Phase</th><th>Scope</th><th>User problem</th></tr>
+<tr><td>Now (v1)</td><td>Screening with evidence, cited Q&amp;A, conflicts and versions, memo gate, recorded IC decision</td><td>"I can't trace this number" / "we missed that two reports disagree"</td></tr>
+<tr><td>Next</td><td>Address the observed misses and evaluate the fixes on a new, unseen set; gated memo export; extraction with human confirmation; access control; red flags into the 100-day plan</td><td>Manual tagging; IC-pack preparation; hand-off to the operating team</td></tr>
+<tr><td>Later</td><td>Sourcing signals and CRM; licensed comparables; portfolio monitoring against the IC case</td><td>Finding targets; checking the investment case after closing</td></tr>
+</table></div>
+<div class="callout"><b>Prioritisation rule:</b> IC evidence standards are not traded away → then deal-team speed → operating-team requests follow once the core workflow proves adoption.</div>
+<p><i>Worked example:</i> gated memo export is sequenced first in Next (speed without weakening the evidence standard); the 100-day plan feed follows it.</p>
+
+<h2 id="evaluation">4. Evaluation and value</h2>
+<p class="mute">Development and held-out results are reported separately, per run and per question; each held-out run was run once on a frozen build. Prototype evaluation, not investment-grade validation.</p>
+<div class="wrap runs-table"><table>
+<tr><th>Measure</th><th>Development (30)</th><th>Run 1 (10)</th><th>Run 2 (8)</th><th>Run 3 (10)</th></tr>
+<tr><td>Question authorship</td><td>with the rules</td><td>AI-drafted, owner-reviewed</td><td>AI assistant, no code access</td><td>drafted from the source documents; labels reviewed by me before the run; not used to tune the implementation before it</td></tr>
+<tr><td>Correct outcome</td><td>30/30</td><td>4/10</td><td>6/8</td><td>7/10</td></tr>
+<tr><td>Citations resolving to a real passage</td><td>41/41</td><td>12/12</td><td>12/12</td><td>11/11</td></tr>
+<tr><td>Citations supporting the answer</td><td>19/19</td><td>2/6</td><td>4/6</td><td>2/6</td></tr>
+<tr><td>Conflicts shown</td><td>6/6</td><td>0/2</td><td>1/2</td><td>2/2</td></tr>
+</table></div>
+<div class="runs-mobile">
+  <div class="card"><h3>Development (30)</h3><p class="mute">Questions written with the rules</p><p>Correct outcome 30/30 · citations resolving 41/41 · supporting 19/19 · conflicts 6/6</p></div>
+  <div class="card"><h3>Held-out run 1 (10)</h3><p class="mute">AI-drafted, owner-reviewed</p><p>Correct outcome 4/10 · citations resolving 12/12 · supporting 2/6 · conflicts 0/2</p></div>
+  <div class="card"><h3>Held-out run 2 (8)</h3><p class="mute">AI assistant, no code access</p><p>Correct outcome 6/8 · citations resolving 12/12 · supporting 4/6 · conflicts 1/2</p></div>
+  <div class="card"><h3>Held-out run 3 (10)</h3><p class="mute">Drafted from the source documents; labels reviewed by me before the run; not used to tune the implementation before it</p><p>Correct outcome 7/10 · citations resolving 11/11 · supporting 2/6 · conflicts 2/2</p></div>
+</div>
+<div class="callout"><b>Takeaway:</b> across three held-out runs, no answer cited a passage that did not exist or belonged to another company. The most serious miss – a confident answer to a different question in run 3 – now has a targeted fix covered by regression tests. The held-out sets were not re-scored after fixes; the next check is a new, unseen set.</div>
+<h3 class="detail-h">Detail by run</h3>
+<details>
+<summary>Held-out run 1 – 4/10: six misses, five causes</summary>
+<p>The first held-out result exposed the gap: the development score measured rules against questions written alongside them.</p>
+<ul>
+<li><b>Answered a different question:</b> "revenue contracted to renew next year" returned total FY2025 revenue – the qualifier was ignored.</li>
+<li><b>Over-claim from one expert call:</b> "what share of customers would accept 6%" was answered from one interview.</li>
+<li><b>Conflict check skipped (two questions):</b> retention and recurring-revenue questions went to passage search and came back as single answers.</li>
+<li><b>Vocabulary:</b> "updated CIM" was not read as a version question.</li>
+<li><b>Paraphrase:</b> "levers for growing the business" did not match "plans" and "growth".</li>
+</ul>
+</details>
+<details>
+<summary>Held-out run 2 – 6/8: three issues</summary>
+<ul>
+<li><b>False conflict:</b> generic words ("year", "end", "net") matched a retention passage for a working-capital question.</li>
+<li><b>Missed conflict:</b> a retention question with extra wording was declined instead of showing both figures.</li>
+<li><b>Unsupported citation:</b> right outcome, but the cited explanation was about revenue, not the recurring-revenue share.</li>
+</ul>
+</details>
+<details>
+<summary>Held-out run 3 – 7/10: four misses</summary>
+<ul>
+<li><b>Right outcome, wrong answer:</b> asked what the biggest customer can do on a change of ownership, it returned that customer's 9% revenue share – caused by a fix made after run 2. Now covered by a targeted fix and regression tests.</li>
+<li><b>Paraphrase:</b> "scale of work and spend to bring the code up to date" did not reach the remediation passage.</li>
+<li><b>Vocabulary:</b> "sales" was not read as revenue, so the version history was not consulted.</li>
+<li><b>Over-answer:</b> a hypothetical recalculation returned the existing conflict instead of a refusal.</li>
+</ul>
+<p class="mute">Each cause has since been addressed and checked only in development tests; the fixes still need validation on a new held-out set, and the held-out scores stand as run.</p>
+</details>
+<details>
+<summary>Model mode (development set only) – 28/30, then 29/30 after a conflict guard</summary>
+<p>gpt-5.4-mini phrasing answers only from retrieved passages, USD 0.023 for 25 calls: every citation valid and every refusal correct, but it flattened two conflicts. The conflict check is now deterministic and cannot be overridden; the re-run showed 6/6 conflicts. The deterministic mode stays the default.</p>
+</details>
+<p><span class="lbl assume">Assumption</span> <b>Value – assumed, not measured:</b> 7.3 / 37.0 / 90.5 analyst hours saved per deal (low / base / high), or 88 / 444 / 1,086 hours a year at an assumed 12 deals in diligence. Measured alongside: time to evidence, citation support, conflicts unresolved at IC, correction effort, adoption.</p>
+
+<h2 id="architecture">5. Architecture (data flow) and limitations</h2>
+<p class="mute"><b>People make every decision</b> (green boxes): screening, conflict acceptance, red-flag ownership and the IC decision. The system prepares evidence and checks the memo against six controls.</p>
+<p class="legend"><span class="lbl flow">System step (blue)</span><span class="lbl human">Human decision (green)</span><span class="lbl assume">Memo gate (amber)</span></p>
+<a href="../assets/deal-intelligence-architecture.png" target="_blank" rel="noopener" class="imglink" aria-label="Open the data-flow diagram full size"><img src="../assets/deal-intelligence-architecture.png" alt="Data flow: synthetic inputs feed a knowledge graph and keyword search; screening, conflict detection and cited Q&amp;A feed memo claims; people decide on screening, conflicts, red flags and the IC decision; a six-control memo gate sits before the IC."></a>
+<p class="mute"><a href="../assets/deal-intelligence-architecture.png" target="_blank" rel="noopener">Open the diagram full size</a></p>
+<details><summary>Text description of the diagram</summary><ol><li>Synthetic inputs – versioned documents with tagged facts, screening criteria, companies and deals – feed a knowledge graph and a keyword search scoped to the deal.</li><li>The graph drives screening and conflict detection; search and the graph drive diligence Q&amp;A with cited claims and reasoned refusals.</li><li>People decide at four points: the screening decision; accepting a conflict's base case with a rationale; each red flag's owner, due date and treatment; and the IC decision.</li><li>Cited memo claims, the conflict decisions and the red flags go through the memo gate's six controls. A failed control returns a fix list; a passed memo goes to the human IC decision, recorded against the memo's fingerprint.</li></ol></details>
+<ul>
+<li>Facts are hand-tagged; real use needs extraction with human confirmation and a measured error rate.</li>
+<li>Keyword retrieval with a small synonym list; paraphrase in general is untested beyond the held-out runs.</li>
+<li>Synthetic roles stand in for people, access control and information barriers; criteria and controls would be set by the investment team.</li>
+<li>A Codex-assisted repository review against a definition-of-done list identified a memo-gate bypass and an outdated dashboard; both were fixed and re-checked, and a clean clone passed all 87 tests. I reviewed the case study, and run 3's questions and labels, against the source documents.</li>
+</ul>
+
+<footer>Personal prototype · synthetic data · illustrative policies · <a href="../index.html">Portfolio</a></footer>
+</main>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!('IntersectionObserver' in window)||!links.length)return;
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+    links.forEach(function(a){a.removeAttribute('aria-current');});
+    var a=map[e.target.id]; if(a){a.setAttribute('aria-current','true');}
+  }});},{rootMargin:'-20% 0px -70% 0px'});
+  Object.keys(map).forEach(function(id){var el=document.getElementById(id); if(el)io.observe(el);});
+})();
+</script>
+</body>
+</html>
