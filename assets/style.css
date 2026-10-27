@@ -13,7 +13,6 @@ h3{font-size:17px;margin:0 0 6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
 .feature-build{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:center}
 .feature-build>img{display:block;width:100%;height:auto;max-height:330px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff}
-.card-project-image{display:block;width:100%;height:auto;max-height:180px;object-fit:cover;margin:0 0 14px;border:1px solid var(--line);border-radius:8px;background:#fff}
 .feature-copy h3{margin:8px 0 12px}
 .feature-copy p{margin:8px 0}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
