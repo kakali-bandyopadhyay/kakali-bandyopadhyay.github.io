@@ -28,7 +28,7 @@
   </p>
 </div>
 
-<h2>Other builds</h2>
+<h2 id="other-builds">Other builds</h2>
 <div class="filters" role="group" aria-label="Filter builds by track">
   <button type="button" class="filter-chip" data-track-filter="all" aria-pressed="true">All</button>
   <button type="button" class="filter-chip" data-track-filter="ai" aria-pressed="false">AI</button>
@@ -88,18 +88,56 @@
 </footer>
 </main>
 <script>
-document.querySelectorAll("[data-track-filter]").forEach((button) => {
+const filters = [...document.querySelectorAll("[data-track-filter]")];
+const validTracks = new Set(filters.map((button) => button.dataset.trackFilter).filter((track) => track !== "all"));
+const cards = [...document.querySelectorAll(".grid [data-tracks]")];
+const buildsHeading = document.querySelector("#other-builds");
+
+function trackFromLocation() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("track")) {
+    const queryTrack = url.searchParams.get("track");
+    return validTracks.has(queryTrack) ? queryTrack : "all";
+  }
+  const hashTrack = url.hash.slice(1);
+  return validTracks.has(hashTrack) ? hashTrack : "all";
+}
+
+function updateTrackUrl(track) {
+  const url = new URL(window.location.href);
+  if (track === "all") {
+    url.searchParams.delete("track");
+    if (validTracks.has(url.hash.slice(1))) url.hash = "";
+  } else {
+    url.searchParams.set("track", track);
+    if (validTracks.has(url.hash.slice(1))) url.hash = "";
+  }
+  history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
+  filters.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.trackFilter === track));
+  });
+  cards.forEach((card) => {
+    const tracks = card.dataset.tracks.split(/\s+/);
+    card.hidden = track !== "all" && !tracks.includes(track);
+  });
+  if (updateUrl) updateTrackUrl(track);
+  if (scroll && track !== "all") buildsHeading.scrollIntoView({ block: "start" });
+}
+
+filters.forEach((button) => {
   button.addEventListener("click", () => {
-    const selected = button.dataset.trackFilter;
-    document.querySelectorAll("[data-track-filter]").forEach((chip) => {
-      chip.setAttribute("aria-pressed", String(chip === button));
-    });
-    document.querySelectorAll(".grid [data-tracks]").forEach((card) => {
-      const tracks = card.dataset.tracks.split(/\s+/);
-      card.hidden = selected !== "all" && !tracks.includes(selected);
-    });
+    applyTrack(button.dataset.trackFilter, { updateUrl: true });
   });
 });
+
+const initialTrack = trackFromLocation();
+applyTrack(initialTrack, { scroll: initialTrack !== "all" });
+if (new URL(window.location.href).searchParams.has("track") && !validTracks.has(new URL(window.location.href).searchParams.get("track"))) {
+  updateTrackUrl("all");
+}
 </script>
 </body>
 </html>
