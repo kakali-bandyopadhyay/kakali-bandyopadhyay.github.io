@@ -15,6 +15,8 @@
 <p class="sub">Product builds for private-markets and hedge-fund workflows – deal intelligence, investment controls and AI adoption.</p>
 <p class="note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
 
+<div id="featured-slot" aria-live="polite">
+<div class="feature-panel" data-feature-panel="deal">
 <h2>Featured case study</h2>
 <div class="card feature">
   <span class="tag ok">Private markets</span><span class="tag">Product case study</span>
@@ -26,6 +28,58 @@
     <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
     <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
   </p>
+</div>
+</div>
+<div class="feature-panel" data-feature-panel="ai" hidden>
+  <h2>Featured build</h2>
+  <div class="card feature feature-build">
+    <img src="assets/img/insurance-ai-architecture-dashboard.jpg" alt="Synthetic insurance AI architecture dashboard showing evaluation and design-authority evidence">
+    <div class="feature-copy">
+      <span class="tag">AI</span><span class="tag">Synthetic data</span>
+      <h3>Enterprise AI architecture for a simulated reinsurer</h3>
+      <p><strong>Problem</strong> AI use cases scale faster than the standards, reviews and inventory that govern them.</p>
+      <p><strong>What it does</strong> Reference architecture, design-authority gate scoring each use case on eight criteria, decision records, Responsible AI controls with owners, and AI inventory insight.</p>
+      <p><strong>Evidence</strong> Two working use cases (submission intake, cited wording Q&amp;A); 130 tests; synthetic data.</p>
+      <p class="links">
+        <a href="https://kakali-bandyopadhyay.github.io/insurance-ai-architecture/">Live dashboard</a>
+        <a href="https://github.com/kakali-bandyopadhyay/insurance-ai-architecture">Code</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="feature-panel" data-feature-panel="data" hidden>
+  <h2>Featured build</h2>
+  <div class="card feature feature-build">
+    <img src="assets/img/entity-mdm-governance-dashboard.jpg" alt="Synthetic entity MDM service-operations dashboard showing its monthly governance scorecard">
+    <div class="feature-copy">
+      <span class="tag">Data</span><span class="tag">Synthetic data</span>
+      <h3>Governed data products (entity MDM)</h3>
+      <p><strong>Problem</strong> Entity records spread across sources create duplicates, unclear ownership and audit evidence that is hard to produce.</p>
+      <p><strong>What it does</strong> Explainable entity mastering and maker-checker review; CDE ownership and lineage; quality rules, scorecards, audit evidence and purpose-based access.</p>
+      <p><strong>Evidence</strong> 47 tests; matching shown on 20 author-labelled pairs (illustrative, not independent validation); synthetic records and illustrative policies.</p>
+      <p class="links">
+        <a href="https://kakali-bandyopadhyay.github.io/entity-mdm-governance/">Live dashboard</a>
+        <a href="https://github.com/kakali-bandyopadhyay/entity-mdm-governance">Code</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="feature-panel" data-feature-panel="operations" hidden>
+  <h2>Featured build</h2>
+  <div class="card feature feature-build">
+    <img src="assets/img/private-credit-allocation-workflow.jpg" alt="Synthetic private-credit allocation engine workflow from deal intake through independent review, based on its README diagram">
+    <div class="feature-copy">
+      <span class="tag">Operations</span><span class="tag">Synthetic data</span>
+      <h3>Private-credit allocation engine</h3>
+      <p><strong>Problem</strong> Allocation decisions need eligibility checks, documented sizing, approval and reconciliation.</p>
+      <p><strong>What it does</strong> Eligibility gates, documented sizing, co-investment escalation, maker-checker approval, booking, reconciliation and surveillance.</p>
+      <p><strong>Evidence</strong> 89 tests; every step writes to a tamper-evident, hash-chained audit log; synthetic data.</p>
+      <p class="links">
+        <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine">Code</a>
+      </p>
+    </div>
+  </div>
+</div>
 </div>
 
 <h2 id="other-builds">Other builds</h2>
@@ -91,6 +145,7 @@
 const filters = [...document.querySelectorAll("[data-track-filter]")];
 const validTracks = new Set(filters.map((button) => button.dataset.trackFilter).filter((track) => track !== "all"));
 const cards = [...document.querySelectorAll(".grid [data-tracks]")];
+const featuredPanels = [...document.querySelectorAll("[data-feature-panel]")];
 const buildsHeading = document.querySelector("#other-builds");
 
 function trackFromLocation() {
@@ -122,6 +177,10 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
   cards.forEach((card) => {
     const tracks = card.dataset.tracks.split(/\s+/);
     card.hidden = track !== "all" && !tracks.includes(track);
+  });
+  const featureTrack = ["ai", "data", "operations"].includes(track) ? track : "deal";
+  featuredPanels.forEach((panel) => {
+    panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
   if (updateUrl) updateTrackUrl(track);
   if (scroll && track !== "all") buildsHeading.scrollIntoView({ block: "start" });
