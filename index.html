@@ -50,16 +50,17 @@
 <div class="feature-panel" data-feature-panel="data" hidden>
   <h2>Featured build</h2>
   <div class="card feature feature-build">
-    <img src="assets/img/entity-mdm-governance-dashboard.jpg" alt="Synthetic entity MDM service-operations dashboard showing its monthly governance scorecard">
+    <img src="https://raw.githubusercontent.com/kakali-bandyopadhyay/ai-ready-data-warehouse/main/docs/img/dbt_layers.png" alt="Synthetic dbt data layers for the AI-ready data warehouse">
     <div class="feature-copy">
-      <span class="tag">Data</span><span class="tag">Synthetic data</span>
-      <h3>Governed data products (entity MDM)</h3>
-      <p><strong>Problem</strong> Entity records spread across sources create duplicates, unclear ownership and audit evidence that is hard to produce.</p>
-      <p><strong>What it does</strong> Explainable entity mastering and maker-checker review; CDE ownership and lineage; quality rules, scorecards, audit evidence and purpose-based access.</p>
-      <p><strong>Evidence</strong> 47 tests; matching shown on 20 author-labelled pairs (illustrative, not independent validation); synthetic records and illustrative policies.</p>
+      <span class="tag">Data engineering</span><span class="tag">Synthetic data</span>
+      <h3>AI-ready data warehouse</h3>
+      <p><strong>Problem</strong> Private-markets data needs tested transformations, consistent analytical models and traceable context for retrieval.</p>
+      <p><strong>What it does</strong> One dbt project across PostgreSQL + pgvector, Snowflake and Databricks, with SCD2 snapshots, idempotent incremental loads, model contracts, data-quality tests and a vector-search layer.</p>
+      <p><strong>Evidence</strong> Identical results across three platforms; CI green. Synthetic data.</p>
       <p class="links">
-        <a href="https://kakali-bandyopadhyay.github.io/entity-mdm-governance/">Live dashboard</a>
-        <a href="https://github.com/kakali-bandyopadhyay/entity-mdm-governance">Code</a>
+        <a href="https://kakali-bandyopadhyay.github.io/ai-ready-data-warehouse/case-study/">Case study</a>
+        <a href="https://github.com/kakali-bandyopadhyay/ai-ready-data-warehouse">Code</a>
+        <a href="https://github.com/kakali-bandyopadhyay/ai-ready-data-warehouse/blob/main/FINDINGS.md">Findings</a>
       </p>
     </div>
   </div>
@@ -108,6 +109,15 @@
       <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine">Code and walkthrough</a>
     </p>
   </div>
+       <div class="card" data-tracks="data operations">
+       <span class="tag">Data governance</span><span class="tag">MDM</span>
+       <h3>Governed data products: entity MDM to marketplace</h3>
+       <p>Entity mastering with explainable match decisions and maker-checker approval; critical data elements with owners and hop-by-hop lineage; SQL data-quality rules tested before activation; country scorecards, an audit evidence pack, purpose-based access requests and an AI-readiness flag per data element.</p>
+       <p class="links">
+         <a href="https://kakali-bandyopadhyay.github.io/entity-mdm-governance/">Live dashboard</a>
+         <a href="https://github.com/kakali-bandyopadhyay/entity-mdm-governance">Code</a>
+       </p>
+     </div>
   <div class="card" data-tracks="data">
     <span class="tag">Data engineering</span><span class="tag">Synthetic data</span>
     <h3>AI-ready data warehouse</h3>
@@ -118,15 +128,6 @@
       <a href="https://github.com/kakali-bandyopadhyay/ai-ready-data-warehouse/blob/main/FINDINGS.md">Findings</a>
     </p>
   </div>
-       <div class="card" data-tracks="data operations">
-       <span class="tag">Data governance</span><span class="tag">MDM</span>
-       <h3>Governed data products: entity MDM to marketplace</h3>
-       <p>Entity mastering with explainable match decisions and maker-checker approval; critical data elements with owners and hop-by-hop lineage; SQL data-quality rules tested before activation; country scorecards, an audit evidence pack, purpose-based access requests and an AI-readiness flag per data element.</p>
-       <p class="links">
-         <a href="https://kakali-bandyopadhyay.github.io/entity-mdm-governance/">Live dashboard</a>
-         <a href="https://github.com/kakali-bandyopadhyay/entity-mdm-governance">Code</a>
-       </p>
-     </div>
   <div class="card" data-tracks="ai data">
     <span class="tag">Enterprise architecture</span><span class="tag">Insurance AI</span>
     <h3>Enterprise AI architecture for a simulated reinsurer</h3>
