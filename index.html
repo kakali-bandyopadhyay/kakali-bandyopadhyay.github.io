@@ -5,15 +5,56 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kakali Bandyopadhyay – Portfolio</title>
 <meta name="description" content="Product and data/AI builds for investment workflows: deal intelligence, GenAI adoption, private-credit allocation.">
+<script>
+(() => {
+  const tracks = {
+    "private-markets": ["Product builds for private-markets and deal workflows", "Deal intelligence, allocation controls, evidence-gated IC memos and IT separation planning.", "Private markets and deal workflow builds – Portfolio"],
+    ai: ["Enterprise AI architecture", "Reference designs, control gates and adoption operating models for financial services.", "Enterprise AI architecture – Portfolio"],
+    data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
+    operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails.", "Operations and controls builds – Portfolio"]
+  };
+  window.__heroTracks = tracks;
+  const track = new URLSearchParams(location.search).get("track");
+  if (tracks[track]) document.title = tracks[track][2];
+})();
+</script>
 <link rel="icon" href="assets/favicon-32x32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <main>
-<h1 class="brand"><img src="assets/logo.png" alt="" class="logo">Kakali Bandyopadhyay</h1>
-<p class="sub">Product builds for private-markets and hedge-fund workflows (deal intelligence, investment controls and AI adoption), with AI architecture and data governance across financial services.</p>
-<p class="note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
+<h1 class="brand" id="hero-title"><img src="assets/logo.png" alt="" class="logo">Kakali Bandyopadhyay</h1>
+<p class="sub" id="hero-sub">Product builds for private-markets and hedge-fund workflows (deal intelligence, investment controls and AI adoption), with AI architecture and data governance across financial services.</p>
+<script>
+(() => {
+  const sub = document.querySelector("#hero-sub");
+  const defaultSub = sub.textContent;
+  const defaultTitle = document.title.includes(" – Portfolio") && !window.__heroTracks[new URLSearchParams(location.search).get("track")] ? document.title : "Kakali Bandyopadhyay – Portfolio";
+  window.setHero = (track) => {
+    const copy = window.__heroTracks[track];
+    if (copy) {
+      sub.textContent = "";
+      const strong = document.createElement("strong");
+      strong.textContent = copy[0] + ". ";
+      sub.append(strong, copy[1]);
+      document.title = copy[2];
+    } else {
+      sub.textContent = defaultSub;
+      document.title = defaultTitle;
+    }
+  };
+  window.setHero(new URLSearchParams(location.search).get("track"));
+})();
+</script>
+
+<div class="filters" role="group" aria-label="Filter builds by track">
+  <button type="button" class="filter-chip" data-track-filter="all" aria-pressed="true">All</button>
+  <button type="button" class="filter-chip" data-track-filter="ai" aria-pressed="false">AI</button>
+  <button type="button" class="filter-chip" data-track-filter="private-markets" aria-pressed="false">Private markets</button>
+  <button type="button" class="filter-chip" data-track-filter="data" aria-pressed="false">Data</button>
+  <button type="button" class="filter-chip" data-track-filter="operations" aria-pressed="false">Operations</button>
+</div>
 
 <div id="featured-slot" aria-live="polite">
 <div class="feature-panel" data-feature-panel="deal">
@@ -83,14 +124,8 @@
 </div>
 </div>
 
-<h2 id="other-builds">Other builds</h2>
-<div class="filters" role="group" aria-label="Filter builds by track">
-  <button type="button" class="filter-chip" data-track-filter="all" aria-pressed="true">All</button>
-  <button type="button" class="filter-chip" data-track-filter="ai" aria-pressed="false">AI</button>
-  <button type="button" class="filter-chip" data-track-filter="private-markets" aria-pressed="false">Private markets</button>
-  <button type="button" class="filter-chip" data-track-filter="data" aria-pressed="false">Data</button>
-  <button type="button" class="filter-chip" data-track-filter="operations" aria-pressed="false">Operations</button>
-</div>
+<h2 id="other-builds">More builds</h2>
+<p class="note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
 <div class="grid">
   <div class="card" data-tracks="ai operations">
     <span class="tag">Hedge-fund technology</span><span class="tag">GenAI adoption</span>
@@ -107,6 +142,15 @@
     <p>A solution accelerator prototype for multi-fund deal allocation: eligibility gates, sizing keys, pre-trade regulatory headroom, co-investment escalation, maker-checker approval, reconciliation and an evidence pack per allocation.</p>
     <p class="links">
       <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine">Code and walkthrough</a>
+    </p>
+  </div>
+  <div class="card" data-tracks="private-markets operations">
+    <span class="tag">Excel</span><span class="tag">Python</span><span class="tag">M&amp;A</span><span class="tag">TSA</span>
+    <h3>IT separation evidence pack</h3>
+    <p>Simulated carve-out, synthetic data. Application disposition with overrides, TSA schedule and run-off, exit plan, Day 1 checklist, two cost bridges (annual run-rate and one-time cost), 100-day PMI plan and an IT due diligence red-flag page. Live Excel formulas, 13 reconciliation checks, independent Python recomputation, 8-slide committee-style deck.</p>
+    <p class="links">
+      <a href="https://github.com/kakali-bandyopadhyay/it-separation-evidence-pack">Code</a>
+      <a href="https://github.com/kakali-bandyopadhyay/it-separation-evidence-pack/blob/main/it_separation_one_pager.pdf">One-pager</a>
     </p>
   </div>
   <div class="card" data-tracks="private-markets">
@@ -161,6 +205,7 @@
   <a href="https://github.com/kakali-bandyopadhyay">GitHub</a> ·
   All projects use synthetic data and illustrative policies.
 </footer>
+<p class="mute">Recent technical work: <a href="https://doi.org/10.17605/OSF.IO/W86XT">pre-registered momentum research</a> · <a href="https://github.com/kakali-bandyopadhyay/trading-path-latency/blob/v0.1-prereg/prereg/PREREGISTRATION.md">C++ trading-path pre-registration</a> <span class="muted">(implementation in progress)</span></p>
 </main>
 <script>
 const filters = [...document.querySelectorAll("[data-track-filter]")];
@@ -203,6 +248,7 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
   featuredPanels.forEach((panel) => {
     panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
+  window.setHero(track);
   if (updateUrl) updateTrackUrl(track);
   if (scroll && track !== "all") buildsHeading.scrollIntoView({ block: "start" });
 }
@@ -214,7 +260,7 @@ filters.forEach((button) => {
 });
 
 const initialTrack = trackFromLocation();
-applyTrack(initialTrack, { scroll: initialTrack !== "all" });
+applyTrack(initialTrack);
 if (new URL(window.location.href).searchParams.has("track") && !validTracks.has(new URL(window.location.href).searchParams.get("track"))) {
   updateTrackUrl("all");
 }
