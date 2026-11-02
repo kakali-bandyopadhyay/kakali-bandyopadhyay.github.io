@@ -11,6 +11,7 @@
     "private-markets": ["Product builds for private-markets and deal workflows", "Deal intelligence, allocation controls, evidence-gated IC memos and IT separation planning.", "Private markets and deal workflow builds – Portfolio"],
     ai: ["Enterprise AI architecture", "Reference designs, control gates and adoption operating models for financial services.", "Enterprise AI architecture – Portfolio"],
     data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
+    "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
     operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails.", "Operations and controls builds – Portfolio"]
   };
   window.__heroTracks = tracks;
@@ -52,6 +53,7 @@
   <button type="button" class="filter-chip" data-track-filter="all" aria-pressed="true">All</button>
   <button type="button" class="filter-chip" data-track-filter="ai" aria-pressed="false">AI</button>
   <button type="button" class="filter-chip" data-track-filter="private-markets" aria-pressed="false">Private markets</button>
+  <button type="button" class="filter-chip" data-track-filter="m-and-a" aria-pressed="false">M&amp;A</button>
   <button type="button" class="filter-chip" data-track-filter="data" aria-pressed="false">Data</button>
   <button type="button" class="filter-chip" data-track-filter="operations" aria-pressed="false">Operations</button>
 </div>
@@ -68,6 +70,22 @@
     <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
     <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
     <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
+  </p>
+</div>
+</div>
+<div class="feature-panel" data-feature-panel="m-and-a" hidden>
+<h2>Featured build</h2>
+<div class="card feature">
+  <span class="tag">M&amp;A</span><span class="tag">Synthetic data</span>
+  <h3>IT separation evidence pack for a simulated carve-out</h3>
+  <p><strong>Problem</strong> A carve-out buyer needs Day 1 continuity, a TSA exit it can control, and a cost case that does not double-count.</p>
+  <p><strong>What it does</strong> Application disposition rules with audited overrides, TSA schedule and month-by-month run-off, exit plan with dependency checks, Day 1 readiness gates, two cost bridges kept on separate bases (annual run-rate and one-time cost to separate), a 100-day plan and an IT due diligence red-flag page.</p>
+  <p><strong>Evidence</strong> 13 reconciliation checks pass; independent Python recomputation matches the workbook to the pound; findings publish the review fixes. Synthetic data.</p>
+  <p class="links">
+    <a href="assets/it-separation-exec-deck.pdf">Exec deck</a>
+    <a href="assets/it-separation-one-pager.pdf">One-pager</a>
+    <a href="https://github.com/kakali-bandyopadhyay/it-separation-evidence-pack">Code</a>
+    <a href="https://github.com/kakali-bandyopadhyay/it-separation-evidence-pack/blob/main/FINDINGS.md">Findings</a>
   </p>
 </div>
 </div>
@@ -154,7 +172,7 @@
       <a href="assets/it-separation-exec-deck.pdf">Exec deck</a>
     </p>
   </div>
-  <div class="card" data-tracks="private-markets">
+  <div class="card" data-tracks="private-markets m-and-a">
     <span class="tag">Private markets</span><span class="tag">Value creation</span>
     <h3>PE value-creation and returns model</h3>
     <p>Synthetic mid-market buyout: scenarios, toggleable value levers, debt schedule, MOIC/IRR, quarterly VCP tracker and independent Python check.</p>
@@ -245,7 +263,7 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
     const tracks = card.dataset.tracks.split(/\s+/);
     card.hidden = track !== "all" && !tracks.includes(track);
   });
-  const featureTrack = ["ai", "data", "operations"].includes(track) ? track : "deal";
+  const featureTrack = ["ai", "data", "operations", "m-and-a"].includes(track) ? track : "deal";
   featuredPanels.forEach((panel) => {
     panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
