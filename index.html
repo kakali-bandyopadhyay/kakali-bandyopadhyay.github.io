@@ -12,7 +12,7 @@
     ai: ["Enterprise AI architecture", "Reference designs, control gates and adoption operating models for financial services.", "Enterprise AI architecture – Portfolio"],
     data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
     "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
-    operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails.", "Operations and controls builds – Portfolio"]
+    operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails; process mining and human-gated automation.", "Operations and controls builds – Portfolio"]
   };
   window.__heroTracks = tracks;
   const track = new URLSearchParams(location.search).get("track");
@@ -127,15 +127,18 @@
 <div class="feature-panel" data-feature-panel="operations" hidden>
   <h2>Featured build</h2>
   <div class="card feature feature-build">
-    <img src="assets/img/private-credit-allocation-workflow.jpg" alt="Synthetic private-credit allocation engine workflow from deal intake through independent review, based on its README diagram">
+    <img src="assets/img/access-flow-owner-shares.png" alt="Synthetic access-provisioning delay shares by owner across four test cells, from the access-flow-mining repository">
     <div class="feature-copy">
-      <span class="tag">Operations</span><span class="tag">Synthetic data</span>
-      <h3>Private-credit allocation engine</h3>
-      <p><strong>Problem</strong> Allocation decisions need eligibility checks, documented sizing, approval and reconciliation.</p>
-      <p><strong>What it does</strong> Eligibility gates, documented sizing, co-investment escalation, maker-checker approval, booking, reconciliation and surveillance.</p>
-      <p><strong>Evidence</strong> 89 tests; every step writes to a tamper-evident, hash-chained audit log; synthetic data.</p>
+      <span class="tag">Process mining</span><span class="tag">Synthetic data</span>
+      <h3>Access-flow mining: approver or handoff bottleneck?</h3>
+      <p><strong>Problem</strong> Slow access provisioning gets blamed on approvers, but the delay can sit in cross-region handoffs and rework instead.</p>
+      <p><strong>What it does</strong> Mines a simulated access-provisioning workflow across three regions; a pre-registered rule classifies delay as approver- or handoff-bound, cross-checked with PM4Py conformance. Includes AI triage behind a human approval gate, a UiPath intake-validation bot and a payback model.</p>
+      <p><strong>Evidence</strong> Pre-registered classifier correct in all 4 test cells; the p95 band miss is reported, not tuned away. 113 tests. The gate fails closed, blocks self-approval and needs two approvers for privileged requests. Synthetic data.</p>
       <p class="links">
-        <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine">Code</a>
+        <a href="https://github.com/kakali-bandyopadhyay/access-flow-mining">Code</a>
+        <a href="https://github.com/kakali-bandyopadhyay/access-flow-mining/blob/main/CASE_STUDY.md">Case study</a>
+        <a href="https://github.com/kakali-bandyopadhyay/access-flow-mining/blob/main/FINDINGS.md">Findings</a>
+        <a href="https://github.com/kakali-bandyopadhyay/access-flow-mining/blob/main/lean/to_be.svg">BPMN</a>
       </p>
     </div>
   </div>
