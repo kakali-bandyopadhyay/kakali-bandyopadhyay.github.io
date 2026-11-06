@@ -9,7 +9,7 @@
 (() => {
   const tracks = {
     "private-markets": ["Product builds for private-markets and deal workflows", "Deal intelligence, allocation controls, evidence-gated IC memos and IT separation planning.", "Private markets and deal workflow builds – Portfolio"],
-    ai: ["Enterprise AI architecture", "Reference designs, control gates and adoption operating models for financial services.", "Enterprise AI architecture – Portfolio"],
+    ai: ["Applied ML and GenAI: retrieval, evaluation and controls.", "", "Enterprise AI architecture – Portfolio"],
     data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
     "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
     operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails; process mining and human-gated automation.", "Operations and controls builds – Portfolio"]
@@ -26,7 +26,7 @@
 <body>
 <main>
 <h1 class="brand" id="hero-title"><img src="assets/logo.png" alt="" class="logo">Kakali Bandyopadhyay</h1>
-<p class="sub" id="hero-sub">Product builds for private-markets and hedge-fund workflows (deal intelligence, investment controls and AI adoption), with AI architecture and data governance across financial services.</p>
+<p class="sub" id="hero-sub">Applied ML and GenAI for investment and markets users: time-based evaluation, failure analysis, controls built in.</p>
 <script>
 (() => {
   const sub = document.querySelector("#hero-sub");
@@ -35,10 +35,14 @@
   window.setHero = (track) => {
     const copy = window.__heroTracks[track];
     if (copy) {
-      sub.textContent = "";
-      const strong = document.createElement("strong");
-      strong.textContent = copy[0] + ". ";
-      sub.append(strong, copy[1]);
+      if (track === "ai") {
+        sub.textContent = copy[0];
+      } else {
+        sub.textContent = "";
+        const strong = document.createElement("strong");
+        strong.textContent = copy[0] + ". ";
+        sub.append(strong, copy[1]);
+      }
       document.title = copy[2];
     } else {
       sub.textContent = defaultSub;
@@ -91,19 +95,29 @@
 </div>
 <div class="feature-panel" data-feature-panel="ai" hidden>
   <h2>Featured build</h2>
-  <div class="card feature feature-build">
-    <img src="assets/img/insurance-ai-architecture-dashboard.jpg" alt="Synthetic insurance AI architecture dashboard showing evaluation and design-authority evidence">
-    <div class="feature-copy">
-      <span class="tag">AI</span><span class="tag">Synthetic data</span>
-      <h3>Enterprise AI architecture for a simulated reinsurer</h3>
-      <p><strong>Problem</strong> AI use cases scale faster than the standards, reviews and inventory that govern them.</p>
-      <p><strong>What it does</strong> Reference architecture, design-authority gate scoring each use case on eight criteria, decision records, Responsible AI controls with owners, and AI inventory insight.</p>
-      <p><strong>Evidence</strong> Two working use cases (submission intake, cited wording Q&amp;A); 130 tests; synthetic data.</p>
-      <p class="links">
-        <a href="https://kakali-bandyopadhyay.github.io/insurance-ai-architecture/">Live dashboard</a>
-        <a href="https://github.com/kakali-bandyopadhyay/insurance-ai-architecture">Code</a>
-      </p>
-    </div>
+  <div class="card feature">
+    <span class="tag ok">Private markets</span><span class="tag">Product case study</span>
+    <h3>Deal intelligence: from screening to an evidence-backed IC memo</h3>
+    <p>One deal-team workflow, built end to end: thesis screening with explicit unknowns and conflicts, diligence Q&amp;A where every claim cites its source, version and conflict tracking, and a six-control memo gate before a human investment-committee decision. Three held-out evaluation runs (4/10, 6/8, 7/10), each miss and its cause published.</p>
+    <p class="links">
+      <a href="case-studies/deal-intelligence.html">Read the case study</a>
+      <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
+      <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
+      <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
+    </p>
+  </div>
+</div>
+<div class="feature-panel" data-feature-panel="private-markets" hidden>
+  <h2>Featured build</h2>
+  <div class="card feature">
+    <span class="tag">Private markets</span><span class="tag">Value creation</span>
+    <h3>PE value-creation and returns model</h3>
+    <p>Synthetic mid-market buyout: scenarios, toggleable value levers, debt schedule, MOIC/IRR, quarterly VCP tracker and independent Python check.</p>
+    <p class="links">
+      <a href="https://github.com/kakali-bandyopadhyay/pe-value-creation-model">Code</a>
+      <a href="https://github.com/kakali-bandyopadhyay/pe-value-creation-model/blob/main/docs/CASE_STUDY.md">Case study</a>
+      <a href="assets/pe-value-creation-model-summary.pdf">PDF</a>
+    </p>
   </div>
 </div>
 <div class="feature-panel" data-feature-panel="data" hidden>
@@ -148,6 +162,17 @@
 <h2 id="other-builds">More builds</h2>
 <p class="note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
 <div class="grid">
+  <div class="card" data-tracks="private-markets">
+    <span class="tag ok">Private markets</span><span class="tag">Product case study</span>
+    <h3>Deal intelligence: from screening to an evidence-backed IC memo</h3>
+    <p>One deal-team workflow, built end to end: thesis screening with explicit unknowns and conflicts, diligence Q&amp;A where every claim cites its source, version and conflict tracking, and a six-control memo gate before a human investment-committee decision. Three held-out evaluation runs (4/10, 6/8, 7/10), each miss and its cause published.</p>
+    <p class="links">
+      <a href="case-studies/deal-intelligence.html">Read the case study</a>
+      <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
+      <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
+      <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
+    </p>
+  </div>
   <div class="card" data-tracks="ai operations">
     <span class="tag">Hedge-fund technology</span><span class="tag">GenAI adoption</span>
     <h3>GenAI adoption control tower</h3>
@@ -266,7 +291,7 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
     const tracks = card.dataset.tracks.split(/\s+/);
     card.hidden = track !== "all" && !tracks.includes(track);
   });
-  const featureTrack = ["ai", "data", "operations", "m-and-a"].includes(track) ? track : "deal";
+  const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets"].includes(track) ? track : "deal";
   featuredPanels.forEach((panel) => {
     panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
