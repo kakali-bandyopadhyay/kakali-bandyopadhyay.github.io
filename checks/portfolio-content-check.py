@@ -9,6 +9,8 @@ HTML = (ROOT / "index.html").read_text(encoding="utf-8")
 ALL_SUB = "Applied ML and GenAI for investment and markets users: time-based evaluation, failure analysis, controls built in."
 AI_SUB = "Applied ML and GenAI: retrieval, evaluation and controls."
 DEAL_TITLE = "Deal intelligence: from screening to an evidence-backed IC memo"
+LIFE_AI_TITLE = "Life and protection AI: which use cases go forward, under what controls"
+AI_PAGE_TITLE = "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"
 PE_TITLE = "PE value-creation and returns model"
 
 
@@ -32,7 +34,12 @@ class PageParser(HTMLParser):
         if self.current_panel and tag == "h3":
             self.capture = ("panel-title", self.current_panel)
         if tag == "div" and "card" in attrs.get("class", "").split() and attrs.get("data-tracks"):
-            self.current_card = {"tracks": attrs["data-tracks"].split(), "title": "", "links": []}
+            self.current_card = {
+                "tracks": attrs["data-tracks"].split(),
+                "featured_track": attrs.get("data-featured-track"),
+                "title": "",
+                "links": [],
+            }
             self.cards.append(self.current_card)
         if self.current_panel and tag == "a":
             self.panels[self.current_panel]["links"].append(attrs.get("href"))
@@ -67,14 +74,16 @@ PAGE.feed(HTML)
 class PortfolioContentChecks(unittest.TestCase):
     def test_default_and_track_hero_copy(self):
         self.assertIn(f'<p class="sub" id="hero-sub">{ALL_SUB}</p>', HTML)
-        self.assertIn(f'ai: ["{AI_SUB}", "", "Enterprise AI architecture – Portfolio"]', HTML)
+        self.assertIn(f'ai: ["{AI_SUB}", "", "{AI_PAGE_TITLE}"]', HTML)
         self.assertIn('if (track === "ai") {\n        sub.textContent = copy[0];', HTML)
+        self.assertIn('document.title = copy[2];', HTML)
 
     def test_featured_titles(self):
         self.assertEqual(PAGE.panels["deal"]["title"], DEAL_TITLE)
-        self.assertEqual(PAGE.panels["ai"]["title"], DEAL_TITLE)
+        self.assertEqual(PAGE.panels["ai"]["title"], LIFE_AI_TITLE)
         self.assertEqual(PAGE.panels["private-markets"]["title"], PE_TITLE)
-        self.assertIn('"private-markets"].includes(track)', HTML)
+        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets"].includes(track) ? track : "deal";', HTML)
+        self.assertIn('const queryTrack = url.searchParams.get("track");', HTML)
 
     def test_insurance_card_remains_in_ai_grid(self):
         self.assertIn('<h3>Enterprise AI architecture for a simulated reinsurer</h3>', HTML)
@@ -91,17 +100,32 @@ class PortfolioContentChecks(unittest.TestCase):
             "https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence",
             "assets/deal-intelligence-case-study.pdf",
         ]
+        ai_feature_links = [
+            "https://kakali-bandyopadhyay.github.io/life-ai-value-chain/case-study/",
+            "https://kakali-bandyopadhyay.github.io/life-ai-value-chain/",
+            "https://github.com/kakali-bandyopadhyay/life-ai-value-chain",
+        ]
+        life_ai_links = [
+            "https://kakali-bandyopadhyay.github.io/life-ai-value-chain/case-study/",
+            "https://kakali-bandyopadhyay.github.io/life-ai-value-chain/",
+            "https://github.com/kakali-bandyopadhyay/life-ai-value-chain",
+        ]
         pe_links = [
             "https://github.com/kakali-bandyopadhyay/pe-value-creation-model",
             "https://github.com/kakali-bandyopadhyay/pe-value-creation-model/blob/main/docs/CASE_STUDY.md",
             "assets/pe-value-creation-model-summary.pdf",
         ]
         self.assertEqual(PAGE.panels["deal"]["links"], deal_links)
-        self.assertEqual(PAGE.panels["ai"]["links"], deal_links)
+        self.assertEqual(PAGE.panels["ai"]["links"], ai_feature_links)
         self.assertEqual(PAGE.panels["private-markets"]["links"], pe_links)
         private_deal = next(c for c in PAGE.cards if c["tracks"] == ["private-markets"] and c["title"] == DEAL_TITLE)
         self.assertEqual(private_deal["links"], deal_links)
-        for href in deal_links + pe_links:
+        life_ai = next(c for c in PAGE.cards if c["title"] == LIFE_AI_TITLE)
+        self.assertEqual(life_ai["links"], life_ai_links)
+        self.assertEqual(life_ai["featured_track"], "ai")
+        self.assertIn('card.hidden = (track !== "all" && !tracks.includes(track)) || card.dataset.featuredTrack === track;', HTML)
+        self.assertEqual(sum(panel["title"] == LIFE_AI_TITLE for panel in PAGE.panels.values()), 1)
+        for href in deal_links + ai_feature_links + life_ai_links + pe_links:
             if "github.com" in href:
                 self.assertTrue(re.match(r"^https://github\.com/kakali-bandyopadhyay/[^/]+(?:/blob/main/.+)?$", href), href)
 

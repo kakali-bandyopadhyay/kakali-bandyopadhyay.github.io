@@ -9,7 +9,7 @@
 (() => {
   const tracks = {
     "private-markets": ["Product builds for private-markets and deal workflows", "Deal intelligence, allocation controls, evidence-gated IC memos and IT separation planning.", "Private markets and deal workflow builds – Portfolio"],
-    ai: ["Applied ML and GenAI: retrieval, evaluation and controls.", "", "Enterprise AI architecture – Portfolio"],
+    ai: ["Applied ML and GenAI: retrieval, evaluation and controls.", "", "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"],
     data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
     "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
     operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails; process mining and human-gated automation.", "Operations and controls builds – Portfolio"]
@@ -96,14 +96,13 @@
 <div class="feature-panel" data-feature-panel="ai" hidden>
   <h2>Featured build</h2>
   <div class="card feature">
-    <span class="tag ok">Private markets</span><span class="tag">Product case study</span>
-    <h3>Deal intelligence: from screening to an evidence-backed IC memo</h3>
-    <p>One deal-team workflow, built end to end: thesis screening with explicit unknowns and conflicts, diligence Q&amp;A where every claim cites its source, version and conflict tracking, and a six-control memo gate before a human investment-committee decision. Three held-out evaluation runs (4/10, 6/8, 7/10), each miss and its cause published.</p>
+    <span class="tag">AI</span><span class="tag">Governance case study</span>
+    <h3>Life and protection AI: which use cases go forward, under what controls</h3>
+    <p>14 AI use cases across a simulated UK life and protection insurer's value chain, gated by an internal risk tier before they are ranked, so high value cannot outweigh an unacceptable risk. The two shortlisted agents, an underwriting evidence summariser and a policy-admin data exception agent, each carry 12 traced controls and a recommend-only accountability table. Interactive: change the weights or the appetite and the ranking updates.</p>
     <p class="links">
-      <a href="case-studies/deal-intelligence.html">Read the case study</a>
-      <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
-      <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
-      <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
+      <a href="https://kakali-bandyopadhyay.github.io/life-ai-value-chain/case-study/">Read the case study</a>
+      <a href="https://kakali-bandyopadhyay.github.io/life-ai-value-chain/">Live dashboard</a>
+      <a href="https://github.com/kakali-bandyopadhyay/life-ai-value-chain">Code</a>
     </p>
   </div>
 </div>
@@ -171,6 +170,16 @@
       <a href="https://kakali-bandyopadhyay.github.io/private-markets-deal-intelligence/">Live dashboard</a>
       <a href="https://github.com/kakali-bandyopadhyay/private-markets-deal-intelligence">Code</a>
       <a href="assets/deal-intelligence-case-study.pdf">PDF</a>
+    </p>
+  </div>
+  <div class="card" data-tracks="ai" data-featured-track="ai">
+    <span class="tag">AI</span><span class="tag">Governance case study</span>
+    <h3>Life and protection AI: which use cases go forward, under what controls</h3>
+    <p>14 AI use cases across a simulated UK life and protection insurer's value chain, gated by an internal risk tier before they are ranked, so high value cannot outweigh an unacceptable risk. The two shortlisted agents, an underwriting evidence summariser and a policy-admin data exception agent, each carry 12 traced controls and a recommend-only accountability table. Interactive: change the weights or the appetite and the ranking updates.</p>
+    <p class="links">
+      <a href="https://kakali-bandyopadhyay.github.io/life-ai-value-chain/case-study/">Read the case study</a>
+      <a href="https://kakali-bandyopadhyay.github.io/life-ai-value-chain/">Live dashboard</a>
+      <a href="https://github.com/kakali-bandyopadhyay/life-ai-value-chain">Code</a>
     </p>
   </div>
   <div class="card" data-tracks="ai operations">
@@ -289,7 +298,7 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
   });
   cards.forEach((card) => {
     const tracks = card.dataset.tracks.split(/\s+/);
-    card.hidden = track !== "all" && !tracks.includes(track);
+    card.hidden = (track !== "all" && !tracks.includes(track)) || card.dataset.featuredTrack === track;
   });
   const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets"].includes(track) ? track : "deal";
   featuredPanels.forEach((panel) => {
