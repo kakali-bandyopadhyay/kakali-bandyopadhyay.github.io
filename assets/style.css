@@ -84,19 +84,19 @@ details[open] summary{margin-bottom:6px}
 .d-strip{list-style:none;padding:0;margin:8px 0 2px;display:flex;flex-wrap:wrap;gap:8px}
 .d-strip li{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 5px;font-size:14px}
 .glance .k-ok{border-left:4px solid var(--ok)}
-.cs-hero{background:linear-gradient(135deg,#0f2b52 0%,#1f4e8c 55%,#2d6cb5 100%);color:#fff;padding:28px 16px 36px}
+.cs-hero{background:linear-gradient(135deg,#0f2b52 0%,#1f4e8c 55%,#2d6cb5 100%);color:#fff;padding:20px 16px 24px}
 .cs-hero-inner{max-width:888px;margin:0 auto}
-.cs-hero nav{margin-bottom:18px}
+.cs-hero nav{margin-bottom:12px}
 .cs-hero nav a{color:#dbe7f7}
-.cs-pill{display:inline-block;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);border-radius:999px;padding:4px 14px;font-size:14px;margin-bottom:14px}
-.cs-hero h1{color:#fff;font-size:34px;line-height:1.2;margin:0 0 12px}
-.cs-lede{font-size:19px;line-height:1.5;color:rgba(255,255,255,.92);margin:0 0 16px}
-.cs-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
-.cs-chips span{background:rgba(255,255,255,.14);border-radius:999px;padding:5px 12px;font-size:14px}
-.cs-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0}
-.cs-btn{display:inline-block;padding:10px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.75);color:#fff;font-weight:600;text-decoration:none}
+.cs-pill{display:inline-block;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);border-radius:999px;padding:2px 12px;font-size:12.5px;margin-bottom:10px}
+.cs-hero h1{color:#fff;font-size:28px;line-height:1.2;margin:0 0 8px}
+.cs-lede{font-size:16px;line-height:1.5;color:rgba(255,255,255,.92);margin:0 0 12px}
+.cs-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.cs-chips span{background:rgba(255,255,255,.14);border-radius:999px;padding:2px 10px;font-size:12.5px}
+.cs-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.cs-btn{display:inline-block;padding:6px 14px;border-radius:7px;font-size:14px;border:1px solid rgba(255,255,255,.75);color:#fff;font-weight:600;text-decoration:none}
 .cs-btn.primary{background:#fff;color:#0f2b52;border-color:#fff}
 .cs-btn:hover{background:rgba(255,255,255,.15)}
 .cs-btn.primary:hover{background:#eef3fb}
-main.cs-main{padding-top:28px}
-@media (max-width:640px){.cs-hero h1{font-size:26px}.cs-lede{font-size:17px}}
+main.cs-main{padding-top:24px}
+@media (max-width:640px){.cs-hero h1{font-size:23px}.cs-lede{font-size:15px}}
