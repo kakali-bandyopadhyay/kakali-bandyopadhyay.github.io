@@ -20,13 +20,29 @@
   <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review">Code</a>
   <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md">Findings</a>
 </p>
-<p class="note">Simulated data – not observed results. The firm, people and vendors are generic and unnamed. Decisions D1–D5 are the decisions the pack forces, presented as such; figures marked forecast are projections.</p>
+<div class="callout lead-problem">
+<p><strong>The problem.</strong> A transformation portfolio has more demand than capacity, a vendor above its quality threshold, a regulatory date with no float and a fixed envelope. Leadership needs decisions, not status reports.</p>
+<div class="pressures">
+  <div class="p-card"><span class="p-num">205 vs 186</span><span class="p-lbl">FTE demand vs supply</span></div>
+  <div class="p-card"><span class="p-num">4.1% vs 1.5%</span><span class="p-lbl">Vendor B defect escape vs threshold</span></div>
+  <div class="p-card"><span class="p-num">0 days</span><span class="p-lbl">Float to the regulatory date</span></div>
+  <div class="p-card amber"><span class="p-num">$42.84m</span><span class="p-lbl">Fixed portfolio envelope</span></div>
+</div>
+<p><strong>What the pack does.</strong> An eight-tab Excel model generates a seven-page review pack. Each core page ends in a dated decision:</p>
+<ol class="d-strip">
+  <li><span class="lbl flow">D1</span>Stop the CRM replacement</li>
+  <li><span class="lbl flow">D2</span>Re-baseline to capacity</li>
+  <li><span class="lbl flow">D3</span>Re-compete vendor B</li>
+  <li><span class="lbl flow">D4</span>Protect the regulatory date</li>
+  <li><span class="lbl flow">D5</span>Pause AI expansion</li>
+</ol>
+</div>
 
 <dl class="glance">
-  <div><dt>Problem</dt><dd>More demand than capacity (205 vs 186 FTE), a vendor above its quality threshold (4.1% vs 1.5%), a regulatory date with no float and a fixed $42.84m envelope. Leadership needs decisions, not status reports.</dd></div>
+  <div class="k-flow"><dt>Decisions</dt><dd>5 dated, D1–D5</dd></div>
   <div><dt>As at</dt><dd>31 Oct 2026</dd></div>
   <div><dt>Outputs</dt><dd>8-tab model, 7-page PDF</dd></div>
-  <div><dt>Checks</dt><dd>37 TRUE; 1,284 printed figures traced.</dd></div>
+  <div class="k-ok"><dt>Checks</dt><dd>37 TRUE; 1,284 figures traced</dd></div>
 </dl>
 
 <nav class="toc" aria-label="Sections">
@@ -45,7 +61,7 @@
 <h2 id="decisions">2. Decisions the pack forces</h2>
 <div class="wrap"><table>
 <thead><tr><th>D-number</th><th>Date</th><th>Decision</th><th>Decider (role)</th><th>Outcome</th></tr></thead>
-<tbody><tr><td>D1</td><td>Mar 2026</td><td>Stopped the CRM replacement and re-scoped to configuration, because 62% of the required capability already sat in the incumbent platform.</td><td>Exec sponsor</td><td>Configured build live in 11 weeks, around June 2026; $4.8m of replacement scope withdrawn and $0.9m moved from line 1 to fund it.</td></tr><tr><td>D2</td><td>Apr 2026</td><td>Re-baselined the portfolio to fit capacity: deferred client portal, cloud wave 2 and finance close, and stopped ESG data.</td><td>SteerCo (exec sponsor)</td><td>Envelope held at $42.84m; eight funded, three deferred, two stopped; 19 unfilled requisitions cancelled, so peak demand matches supply at 186.</td></tr><tr><td>D3</td><td>May 2026</td><td>Re-competed vendor B, with a remediation parallel run at its cost and two milestone payments held until a 2.0% exit gate was met.</td><td>Exec sponsor</td><td>Exit gate met at 1.6% in 54 days; the two held payments released, no added spend. Vendor B stays amber until 1.5% holds two consecutive months, not reached at the cut-off.</td></tr><tr><td>D4</td><td>Jun 2026</td><td>Phased two regulatory reports into phase 2 to protect the 29 Jan 2027 regulatory date, forecast, rather than moving the date or crashing the plan.</td><td>Exec sponsor with Compliance</td><td>Two reports phased; float rebuilt to 11 days; data-engineering need down from six to four. The 29 Jan 2027 date is protected, forecast.</td></tr><tr><td>D5</td><td>Jul 2026</td><td>Paused AI expansion at the evaluation gate, keeping the two use cases that passed, re-scoping five and retiring two.</td><td>SteerCo (digital lead)</td><td>Two stay live in current scope; of the seven that failed, five re-scoped and two retired. Re-entry gate 31 Dec 2026, forecast.</td></tr></tbody>
+<tbody><tr><td><span class="lbl flow">D1</span></td><td>Mar 2026</td><td>Stopped the CRM replacement and re-scoped to configuration, because 62% of the required capability already sat in the incumbent platform.</td><td>Exec sponsor</td><td>Configured build live in 11 weeks, around June 2026; $4.8m of replacement scope withdrawn and $0.9m moved from line 1 to fund it.</td></tr><tr><td><span class="lbl flow">D2</span></td><td>Apr 2026</td><td>Re-baselined the portfolio to fit capacity: deferred client portal, cloud wave 2 and finance close, and stopped ESG data.</td><td>SteerCo (exec sponsor)</td><td>Envelope held at $42.84m; eight funded, three deferred, two stopped; 19 unfilled requisitions cancelled, so peak demand matches supply at 186.</td></tr><tr><td><span class="lbl flow">D3</span></td><td>May 2026</td><td>Re-competed vendor B, with a remediation parallel run at its cost and two milestone payments held until a 2.0% exit gate was met.</td><td>Exec sponsor</td><td>Exit gate met at 1.6% in 54 days; the two held payments released, no added spend. Vendor B stays amber until 1.5% holds two consecutive months, not reached at the cut-off.</td></tr><tr><td><span class="lbl flow">D4</span></td><td>Jun 2026</td><td>Phased two regulatory reports into phase 2 to protect the 29 Jan 2027 regulatory date, forecast, rather than moving the date or crashing the plan.</td><td>Exec sponsor with Compliance</td><td>Two reports phased; float rebuilt to 11 days; data-engineering need down from six to four. The 29 Jan 2027 date is protected, forecast.</td></tr><tr><td><span class="lbl flow">D5</span></td><td>Jul 2026</td><td>Paused AI expansion at the evaluation gate, keeping the two use cases that passed, re-scoping five and retiring two.</td><td>SteerCo (digital lead)</td><td>Two stay live in current scope; of the seven that failed, five re-scoped and two retired. Re-entry gate 31 Dec 2026, forecast.</td></tr></tbody>
 </table></div>
 
 <h2 id="exhibits">3. Exhibits</h2>
@@ -55,6 +71,8 @@
 
 <h2 id="numbers">4. How the numbers hold</h2>
 <p>Inputs only from <code>generator/params.yaml</code> (each entry has a <code>basis</code>) and <code>generator/kakali_text.yaml</code> (own-words text, loaded verbatim); live formulas; ALL CHECKS block: 37 TRUE. PDF figures read from recalculated cells. Trace CSV rows: 1,284.</p>
+
+<p class="note">Simulated data – not observed results. The firm, people and vendors are generic and unnamed. Decisions D1–D5 are the decisions the pack forces, presented as such; figures marked forecast are projections.</p>
 
 <footer>Simulated data · personal prototype · <a href="../?track=transformation">Portfolio</a></footer>
 </main>

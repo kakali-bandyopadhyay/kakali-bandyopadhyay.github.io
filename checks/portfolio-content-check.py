@@ -148,7 +148,7 @@ class PortfolioContentChecks(unittest.TestCase):
             "https://github.com/kakali-bandyopadhyay/transformation-delivery-review",
             "https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md",
         ]
-        self.assertEqual(grid["links"], expected_links)
+        self.assertEqual(grid["links"], [expected_links[0], expected_links[1], expected_links[3]])
         self.assertEqual(PAGE.panels["transformation"]["links"], expected_links)
 
         short_path = ROOT / "transformation" / "index.html"

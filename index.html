@@ -160,26 +160,29 @@
 </div>
 
 <div class="feature-panel" data-feature-panel="transformation" hidden>
-<h2>Featured build</h2>
-<div class="card feature">
-  <span class="tag">Transformation</span><span class="tag">Synthetic data</span>
-  <h3>Enterprise transformation delivery review</h3>
-  <p><strong>Problem</strong> A transformation portfolio with more demand than capacity, a vendor above its quality threshold and a regulatory date with no float needs decisions, not status reports.</p>
-  <p><strong>What it does</strong> An eight-tab Excel model generates a seven-page review pack: portfolio register with deferrals and stops, decision rights, a role × vendor × region capacity model with a role bridge, vendor scorecard and remediation gate, vendor spend and concentration, critical path and float, and benefits tracking. Every core page ends in a dated decision the pack forces (D1–D5).</p>
-  <p><strong>Evidence</strong> 37 model checks TRUE; all 1,284 figures printed in the PDF traced to their workbook cells; pages generated from the model, not typed. Synthetic data.</p>
-  <p class="links">
-    <a href="case-studies/transformation-delivery-review.html">Read the case study</a>
-    <a href="assets/transformation-delivery-review.pdf">PDF</a>
-    <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/raw/main/out/delivery_review_model.xlsx">Excel model</a>
-    <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review">Code</a>
-    <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md">Findings</a>
-  </p>
-</div>
+  <h2>Featured build</h2>
+  <div class="card feature feature-build">
+    <img src="assets/img/tdr-page2-portfolio.png" alt="Page 2 of the simulated review pack: portfolio register, roadmap with shared data-engineering capacity, and deferrals and stops">
+    <div class="feature-copy">
+      <span class="tag">Transformation</span><span class="tag">Synthetic data</span>
+      <h3>Enterprise transformation delivery review</h3>
+      <p><strong>Problem</strong> More demand than capacity (205 vs 186 FTE), a vendor above its quality threshold (4.1% vs 1.5%) and a regulatory date with no float, inside a fixed $42.84m envelope.</p>
+      <p><strong>What it does</strong> An 8-tab Excel model drives a 7-page review pack. Every core page ends in a dated decision: stop, re-baseline, re-compete, protect the date, pause AI expansion (D1–D5).</p>
+      <p><strong>Evidence</strong> 37 model checks TRUE; all 1,284 printed figures traced to workbook cells; pages generated from the model, not typed. Synthetic data.</p>
+      <p class="links">
+        <a href="case-studies/transformation-delivery-review.html">Case study</a>
+        <a href="assets/transformation-delivery-review.pdf">PDF</a>
+        <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/raw/main/out/delivery_review_model.xlsx">Excel model</a>
+        <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review">Code</a>
+        <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md">Findings</a>
+      </p>
+    </div>
+  </div>
 </div>
 </div>
 
 <h2 id="other-builds">More builds</h2>
-<p class="note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
+<p class="note" id="other-builds-note">Personal prototypes on synthetic data with illustrative policies. They are not based on, or connected to, any firm's systems, data or processes.</p>
 <div class="grid">
   <div class="card" data-tracks="private-markets">
     <span class="tag ok">Private markets</span><span class="tag">Product case study</span>
@@ -269,17 +272,13 @@
   </div>
 
   <div class="card" data-tracks="transformation operations" data-featured-track="transformation">
-  <span class="tag">Transformation</span><span class="tag">Synthetic data</span>
+  <span class="tag">Transformation</span><span class="tag">Delivery governance</span>
   <h3>Enterprise transformation delivery review</h3>
-  <p><strong>Problem</strong> A transformation portfolio with more demand than capacity, a vendor above its quality threshold and a regulatory date with no float needs decisions, not status reports.</p>
-  <p><strong>What it does</strong> An eight-tab Excel model generates a seven-page review pack: portfolio register with deferrals and stops, decision rights, a role × vendor × region capacity model with a role bridge, vendor scorecard and remediation gate, vendor spend and concentration, critical path and float, and benefits tracking. Every core page ends in a dated decision the pack forces (D1–D5).</p>
-  <p><strong>Evidence</strong> 37 model checks TRUE; all 1,284 figures printed in the PDF traced to their workbook cells; pages generated from the model, not typed. Synthetic data.</p>
+  <p>Simulated investment-manager portfolio: demand above capacity, a vendor failing quality and a regulatory date with no float, brought to five dated decisions. An 8-tab Excel model drives a 7-page pack; every printed figure traced to its cell.</p>
   <p class="links">
-    <a href="case-studies/transformation-delivery-review.html">Read the case study</a>
+    <a href="case-studies/transformation-delivery-review.html">Case study</a>
     <a href="assets/transformation-delivery-review.pdf">PDF</a>
-    <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/raw/main/out/delivery_review_model.xlsx">Excel model</a>
     <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review">Code</a>
-    <a href="https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md">Findings</a>
   </p>
   </div>
 </div>
@@ -336,6 +335,9 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
     card.hidden = (track !== "all" && !tracks.includes(track)) || card.dataset.featuredTrack === track;
   });
   const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";
+  const anyCard = cards.some((card) => !card.hidden);
+  buildsHeading.hidden = !anyCard;
+  document.querySelector("#other-builds-note").hidden = !anyCard;
   featuredPanels.forEach((panel) => {
     panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
