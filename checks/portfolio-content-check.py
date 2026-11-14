@@ -165,8 +165,8 @@ class PortfolioContentChecks(unittest.TestCase):
         case_path = ROOT / "case-studies" / "transformation-delivery-review.html"
         self.assertTrue(case_path.is_file())
         case = case_path.read_text(encoding="utf-8")
-        self.assertIn("<h1>Synthetic case study: enterprise transformation delivery review</h1>", case)
-        self.assertIn("All data and results here are synthetic.", case)
+        self.assertIn("<h1>Enterprise transformation: what to fund, fix and stop when demand outruns capacity</h1>", case)
+        self.assertIn("simulated scenario · synthetic data", case)
         self.assertNotIn("prototype", case)
         self.assertIn("Simulated data – not observed results. The firm, people and vendors are generic and unnamed. Decisions D1–D5 are the decisions the pack forces, presented as such; figures marked forecast are projections.", case)
         self.assertIn('href="../?track=transformation"', case)
