@@ -337,7 +337,6 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
   const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";
   const anyCard = cards.some((card) => !card.hidden);
   buildsHeading.hidden = !anyCard;
-  document.querySelector("#other-builds-note").hidden = !anyCard;
   featuredPanels.forEach((panel) => {
     panel.hidden = panel.dataset.featurePanel !== featureTrack;
   });
