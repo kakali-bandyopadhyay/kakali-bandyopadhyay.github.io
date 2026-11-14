@@ -2,6 +2,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import re
 import unittest
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,7 +83,7 @@ class PortfolioContentChecks(unittest.TestCase):
         self.assertEqual(PAGE.panels["deal"]["title"], DEAL_TITLE)
         self.assertEqual(PAGE.panels["ai"]["title"], LIFE_AI_TITLE)
         self.assertEqual(PAGE.panels["private-markets"]["title"], PE_TITLE)
-        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets"].includes(track) ? track : "deal";', HTML)
+        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";', HTML)
         self.assertIn('const queryTrack = url.searchParams.get("track");', HTML)
 
     def test_insurance_card_remains_in_ai_grid(self):
@@ -129,6 +130,72 @@ class PortfolioContentChecks(unittest.TestCase):
             if "github.com" in href:
                 self.assertTrue(re.match(r"^https://github\.com/kakali-bandyopadhyay/[^/]+(?:/blob/main/.+)?$", href), href)
 
+
+
+    def test_transformation_track_card_panel_short_link_and_case_study(self):
+        canonical = "https://kakali-bandyopadhyay.github.io/?track=transformation"
+        self.assertIn('data-track-filter="operations" aria-pressed="false">Operations</button>\n  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false">Transformation</button>', HTML)
+        self.assertIn('transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"]', HTML)
+        self.assertIn('<div class="feature-panel" data-feature-panel="transformation" hidden>', HTML)
+        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";', HTML)
+        grid = next(c for c in PAGE.cards if c["title"] == "Enterprise transformation delivery review")
+        self.assertEqual(grid["tracks"], ["transformation", "operations"])
+        self.assertEqual(grid["featured_track"], "transformation")
+        expected_links = [
+            "case-studies/transformation-delivery-review.html",
+            "assets/transformation-delivery-review.pdf",
+            "https://github.com/kakali-bandyopadhyay/transformation-delivery-review/raw/main/out/delivery_review_model.xlsx",
+            "https://github.com/kakali-bandyopadhyay/transformation-delivery-review",
+            "https://github.com/kakali-bandyopadhyay/transformation-delivery-review/blob/main/FINDINGS.md",
+        ]
+        self.assertEqual(grid["links"], expected_links)
+        self.assertEqual(PAGE.panels["transformation"]["links"], expected_links)
+
+        short_path = ROOT / "transformation" / "index.html"
+        self.assertTrue(short_path.is_file())
+        short = short_path.read_text(encoding="utf-8")
+        meta = re.search(r'<meta http-equiv="refresh" content="0; url=([^"]+)">', short)
+        script = re.search(r'window\.location\.replace\("([^"]+)"\)', short)
+        fallback = re.search(r'<a href="([^"]+)">Continue to Transformation and delivery builds</a>', short)
+        self.assertIsNotNone(meta)
+        self.assertIsNotNone(script)
+        self.assertIsNotNone(fallback)
+        self.assertEqual([meta.group(1), script.group(1), fallback.group(1)], [canonical] * 3)
+
+        case_path = ROOT / "case-studies" / "transformation-delivery-review.html"
+        self.assertTrue(case_path.is_file())
+        case = case_path.read_text(encoding="utf-8")
+        self.assertIn("<h1>Enterprise transformation delivery review</h1>", case)
+        self.assertIn("<p class=\"sub\">Delivery case study – personal prototype</p>", case)
+        self.assertIn("Simulated data – not observed results. The firm, people and vendors are generic and unnamed. Decisions D1–D5 are the decisions the pack forces, presented as such; figures marked forecast are projections.", case)
+        self.assertIn('href="../?track=transformation"', case)
+        for img in ["tdr-e12-roadmap.png", "tdr-e31-capacity.png", "tdr-decision-log.png"]:
+            self.assertIn(img, case)
+
+        class HrefParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.hrefs = []
+            def handle_starttag(self, tag, attrs):
+                if tag == "a":
+                    href = dict(attrs).get("href")
+                    if href:
+                        self.hrefs.append(href)
+
+        def assert_relative_links_resolve(test, hrefs, source_file):
+            for href in hrefs:
+                if urlsplit(href).scheme or href.startswith("#"):
+                    continue
+                target = urlsplit(href).path
+                resolved = (source_file.parent / target).resolve()
+                if not target or resolved.is_dir():
+                    resolved = resolved / "index.html"
+                test.assertTrue(resolved.is_file(), f"{href} from {source_file.relative_to(ROOT)}")
+
+        assert_relative_links_resolve(self, grid["links"], ROOT / "index.html")
+        anchors = HrefParser()
+        anchors.feed(case)
+        assert_relative_links_resolve(self, anchors.hrefs, case_path)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
