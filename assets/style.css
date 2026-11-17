@@ -80,6 +80,8 @@ details[open] summary{margin-bottom:6px}
 .p-card.amber{border-top-color:var(--assume)}
 .p-num{display:block;font-size:18px;font-weight:700;color:var(--block);line-height:1.2}
 .p-card.amber .p-num{color:var(--assume)}
+.approach-card{border-top-color:var(--flow)}
+.approach-card .p-num{color:var(--flow)}
 .p-lbl{display:block;font-size:12px;color:var(--mute);margin-top:2px}
 .d-strip{list-style:none;padding:0;margin:8px 0 2px;display:flex;flex-wrap:wrap;gap:8px}
 .d-strip li{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 4px;font-size:13px}

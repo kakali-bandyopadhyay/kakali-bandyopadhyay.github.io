@@ -1,0 +1,1186 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-11-17T11:43:06+00:00",
+  "commit": "21fa9fe",
+  "provenance": [
+    {
+      "file": "results/text/text_manifest.json",
+      "sha256": "15da63ba8c6c11e80bc398de365ef60ec98c13a75facccc033ff9a46e039d86a"
+    },
+    {
+      "file": "results/text/dq_flags.parquet",
+      "sha256": "fa44abde969f45f8044addb72b3a655c01d25938157e0ecd407a230c82fa3005"
+    },
+    {
+      "file": "results/text/retrieval_eval.parquet",
+      "sha256": "077af92634809bb5e36980cc77bc6b99fb9fd70a434cf3a580153c32b8511ae1"
+    },
+    {
+      "file": "results/losses.parquet",
+      "sha256": "dbe7672e279b75df9a6e710b5652f0ed8068612ce6af482c96e99c3a94b96fb0"
+    },
+    {
+      "file": "results/tests.parquet",
+      "sha256": "b5ae335802505a41c186d697e1171844f23b3a2664048bd9a2ecd5c006728383"
+    },
+    {
+      "file": "results/tests_ex_window.parquet",
+      "sha256": "5bde7c328d914bf2eaf35317096319838f1b4f32bb1607a8245279c5c42b84ee"
+    },
+    {
+      "file": "results/holm_final.parquet",
+      "sha256": "aa249c453189a9c9dea8ce63868ad8ff368b6530b3a9267eb0b8644be8508340"
+    },
+    {
+      "file": "results/mlp_tests.parquet",
+      "sha256": "975ea9c8c036fbc888a60748f1e4c837456b2a806a3f498d37386082d7aa7255"
+    },
+    {
+      "file": "results/mlp_regimes.parquet",
+      "sha256": "5b7c14a760c95f8831c0caed8ddc3fcb6c5c6f82a5e2ea2f5febcb1a39e1f641"
+    },
+    {
+      "file": "results/q2_summary.parquet",
+      "sha256": "fd8110e16c02b11573e76bacc9b2ef086f8555baf21cb129be397903c8387bfc"
+    },
+    {
+      "file": "data/text/documents.parquet",
+      "sha256": "91d4050739abf9caefa89625f0a23d5ae2305fe1d472f0a072d1893b15b9d1ad"
+    },
+    {
+      "file": "data/text/chunks.parquet",
+      "sha256": "345a63eb6ff840468d7cf58afcda4089257418fada57b537c20569271428fc4c"
+    },
+    {
+      "file": "data/text/eval_questions.csv",
+      "sha256": "eddc22fbd04ed922ecaa1f8b7f18a299740d7e7b9fa292233060101282389f5a"
+    },
+    {
+      "file": "results/text/retrieval_ranks.parquet",
+      "sha256": "6bd08d504f8bc8487061479024e0e255f20774f554b8f56dbdd28a3d21bbe8a7"
+    },
+    {
+      "file": "results/text/10c_kafka.json",
+      "sha256": "c3cc18ffca94ffd0866b73ba83ac14c90df4feccb01025ee1dae45156e989373"
+    },
+    {
+      "file": "results/text/10c_athena.json",
+      "sha256": "7a357200a085c3512a361fd6bdf23d0e408bf3c130f69a8561fd417d5058eb0a"
+    },
+    {
+      "file": "results/text/10c_evidence.json",
+      "sha256": "e7c28a0a55eb6012dc599aeb64b0bd728b361ec905a6280b6efe9b0f4cd0c623"
+    },
+    {
+      "file": "results/text/retrieval_eval_10c.parquet",
+      "sha256": "6f07264bf901e31d6696f1d333b14dbc8c9b429326bb957c40d3c67895557ef8"
+    }
+  ],
+  "corpus": {
+    "documents": 266,
+    "chunks": 6620,
+    "tokens": 1500244,
+    "documents_by_doc_type_and_year": {
+      "by_doc_type": [
+        {
+          "doc_type": "minutes",
+          "documents": 132
+        },
+        {
+          "doc_type": "statement",
+          "documents": 134
+        }
+      ],
+      "by_year": [
+        {
+          "doc_type": "minutes",
+          "year": "2010",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2011",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2012",
+          "documents": 7
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2013",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2014",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2015",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2016",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2017",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2018",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2019",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2020",
+          "documents": 7
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2021",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2022",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2023",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2024",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2025",
+          "documents": 8
+        },
+        {
+          "doc_type": "minutes",
+          "year": "2026",
+          "documents": 6
+        },
+        {
+          "doc_type": "statement",
+          "year": "2010",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2011",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2012",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2013",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2014",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2015",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2016",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2017",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2018",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2019",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2020",
+          "documents": 7
+        },
+        {
+          "doc_type": "statement",
+          "year": "2021",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2022",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2023",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2024",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2025",
+          "documents": 8
+        },
+        {
+          "doc_type": "statement",
+          "year": "2026",
+          "documents": 7
+        }
+      ],
+      "chunks_by_doc_type": [
+        {
+          "doc_type": "minutes",
+          "chunks": 6255
+        },
+        {
+          "doc_type": "statement",
+          "chunks": 365
+        }
+      ]
+    },
+    "tokens_note": "Corpus token total: 1,500,244 (sum of chunks.parquet n_tokens).",
+    "dq_flags": {
+      "count": 2,
+      "by_reason": [
+        {
+          "reason": "minutes_missing",
+          "count": 1
+        },
+        {
+          "reason": "not_yet_released",
+          "count": 1
+        }
+      ]
+    },
+    "dq_severity": [
+      {
+        "severity": "failure",
+        "count": 1
+      },
+      {
+        "severity": "info",
+        "count": 1
+      }
+    ]
+  },
+  "retrieval": {
+    "overall": [
+      {
+        "mode": "dense",
+        "n": 15,
+        "recall_at_5": 0.3888888888888889,
+        "mrr_at_10": 0.28645502645502646
+      },
+      {
+        "mode": "hybrid",
+        "n": 15,
+        "recall_at_5": 0.3222222222222222,
+        "mrr_at_10": 0.24396825396825397
+      },
+      {
+        "mode": "sparse",
+        "n": 15,
+        "recall_at_5": 0.12222222222222222,
+        "mrr_at_10": 0.12962962962962962
+      }
+    ],
+    "by_doc_type": [
+      {
+        "mode": "dense",
+        "gold_doc_type": "minutes",
+        "n": 7,
+        "recall_at_5": 0.5476190476190476,
+        "mrr_at_10": 0.501360544217687
+      },
+      {
+        "mode": "dense",
+        "gold_doc_type": "statement",
+        "n": 8,
+        "recall_at_5": 0.25,
+        "mrr_at_10": 0.09841269841269841
+      },
+      {
+        "mode": "hybrid",
+        "gold_doc_type": "minutes",
+        "n": 7,
+        "recall_at_5": 0.5476190476190476,
+        "mrr_at_10": 0.4666666666666667
+      },
+      {
+        "mode": "hybrid",
+        "gold_doc_type": "statement",
+        "n": 8,
+        "recall_at_5": 0.125,
+        "mrr_at_10": 0.049107142857142856
+      },
+      {
+        "mode": "sparse",
+        "gold_doc_type": "minutes",
+        "n": 7,
+        "recall_at_5": 0.2619047619047619,
+        "mrr_at_10": 0.2777777777777778
+      },
+      {
+        "mode": "sparse",
+        "gold_doc_type": "statement",
+        "n": 8,
+        "recall_at_5": 0.0,
+        "mrr_at_10": 0.0
+      }
+    ],
+    "question_grid": {
+      "available": true,
+      "modes": [
+        "dense",
+        "hybrid",
+        "sparse"
+      ],
+      "rows": [
+        {
+          "qid": "q01",
+          "label": "Why did Thomas Hoenig dissent at the January 2010 FOMC meeting?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q02",
+          "label": "Why did James Bullard dissent at the June 2013 FOMC meeting?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q03",
+          "label": "What did Narayana Kocherlakota cite as a concern when he dissented in October 20",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q04",
+          "label": "What did Jeffrey Lacker prefer at the September 2015 FOMC meeting?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": true,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q05",
+          "label": "What did Esther George and Eric Rosengren prefer at the July 2019 FOMC meeting?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q06",
+          "label": "How did the April 2020 statement describe the coronavirus outbreak's impact?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q07",
+          "label": "What did the Committee anticipate about future rate moves in March 2022?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q08",
+          "label": "How large a rate increase did the dissenters prefer in July 2026?",
+          "gold_doc_type": "statement",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q09",
+          "label": "How much Treasury debt did the 2011 maturity extension program plan to purchase?",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": true
+          }
+        },
+        {
+          "qid": "q10",
+          "label": "What change did some participants think could reduce the stigma of using swap li",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": true
+          }
+        },
+        {
+          "qid": "q11",
+          "label": "What concern did a couple of participants raise about standing swap arrangements",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q12",
+          "label": "What balance-sheet option did participants weigh in March 2019?",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": false,
+            "hybrid": false,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q13",
+          "label": "What did the Committee authorize by notation vote in March 2020 to support dolla",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": false
+          }
+        },
+        {
+          "qid": "q14",
+          "label": "When do the Committee's plans say balance-sheet runoff should stop?",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": true
+          }
+        },
+        {
+          "qid": "q15",
+          "label": "Why did participants consider beginning reserve management purchases prudent in ",
+          "gold_doc_type": "minutes",
+          "hits": {
+            "dense": true,
+            "hybrid": true,
+            "sparse": false
+          }
+        }
+      ]
+    },
+    "best_mode": "fused (10c)",
+    "best_recall_at_5": 0.5888888888888889,
+    "best_mode_label": "fused (10c)",
+    "release_comparison": {
+      "10b_dense": {
+        "label": "10b dense",
+        "recall_at_5": 0.3888888888888889
+      },
+      "10c_fused": {
+        "label": "10c fused",
+        "recall_at_5": 0.5888888888888889
+      }
+    },
+    "question_count": 15
+  },
+  "forecasting": {
+    "loss_by_model_horizon": [
+      {
+        "model": "M0",
+        "horizon": "30d",
+        "mean_loss": 0.5087482975606998,
+        "loss_ratio_vs_har": 1.2310473646672262
+      },
+      {
+        "model": "M1",
+        "horizon": "30d",
+        "mean_loss": 0.41326460066646054,
+        "loss_ratio_vs_har": 1.0
+      },
+      {
+        "model": "M2",
+        "horizon": "30d",
+        "mean_loss": 0.4203454473553704,
+        "loss_ratio_vs_har": 1.017133929878075
+      },
+      {
+        "model": "M3",
+        "horizon": "30d",
+        "mean_loss": 0.3958479527069618,
+        "loss_ratio_vs_har": 0.957855940403772
+      },
+      {
+        "model": "M4",
+        "horizon": "30d",
+        "mean_loss": 0.4146647478828503,
+        "loss_ratio_vs_har": 1.0033880163317443
+      }
+    ],
+    "clark_west": [
+      {
+        "pair": "M2_vs_M1",
+        "statistic": 3.1355058952409123,
+        "pvalue": 0.0008577899011475977,
+        "sample": "ex_window",
+        "headline": true,
+        "source": "tests_ex_window.parquet"
+      },
+      {
+        "pair": "M2_vs_M1",
+        "statistic": 1.5574129261662608,
+        "pvalue": 0.05968623957011934,
+        "sample": "full",
+        "headline": false,
+        "source": "tests.parquet"
+      }
+    ],
+    "holm": [
+      {
+        "pair": "M2_vs_M1",
+        "sample": "full",
+        "statistic": 0.33597951099342954,
+        "holm_p": 1.0,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M4_vs_M2",
+        "sample": "full",
+        "statistic": -0.19027040582816176,
+        "holm_p": 1.0,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M1_vs_M3",
+        "sample": "full",
+        "statistic": 0.8331464457992809,
+        "holm_p": 1.0,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M1_vs_M0",
+        "sample": "full",
+        "statistic": -2.214821416033124,
+        "holm_p": 0.10708929862137805,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M2_vs_M1",
+        "sample": "ex_window",
+        "statistic": -1.4775481368292387,
+        "holm_p": 0.2807106879081387,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M4_vs_M2",
+        "sample": "ex_window",
+        "statistic": -1.9109441272088628,
+        "holm_p": 0.22404704586984947,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M1_vs_M3",
+        "sample": "ex_window",
+        "statistic": 1.3624748712865369,
+        "holm_p": 0.2807106879081387,
+        "reject": false,
+        "decision": "not rejected"
+      },
+      {
+        "pair": "M1_vs_M0",
+        "sample": "ex_window",
+        "statistic": -1.676858120082687,
+        "holm_p": 0.2807106879081387,
+        "reject": false,
+        "decision": "not rejected"
+      }
+    ],
+    "model_tests": [
+      {
+        "test": "diebold_mariano",
+        "pair": "M4_vs_M2",
+        "sample": "full",
+        "statistic": -0.19027040582816176,
+        "pvalue": 0.8490972427398964,
+        "family": "Q1c"
+      },
+      {
+        "test": "mincer_zarnowitz",
+        "pair": "M4",
+        "sample": "full",
+        "statistic": 2.1069744709594667,
+        "pvalue": 0.3487195590690396,
+        "family": "calibration"
+      },
+      {
+        "test": "diebold_mariano",
+        "pair": "M4_vs_M2",
+        "sample": "ex_window",
+        "statistic": -1.9109441272088628,
+        "pvalue": 0.05601176146746237,
+        "family": "Q1c"
+      },
+      {
+        "test": "mincer_zarnowitz",
+        "pair": "M4",
+        "sample": "ex_window",
+        "statistic": 2.631342260736799,
+        "pvalue": 0.26829420241681295,
+        "family": "calibration"
+      }
+    ],
+    "available_columns": {
+      "losses.parquet": [
+        "model",
+        "date",
+        "qlike",
+        "squared_error",
+        "snapshot_id"
+      ],
+      "tests.parquet": [
+        "test",
+        "pair",
+        "statistic",
+        "pvalue",
+        "family",
+        "snapshot_id"
+      ],
+      "tests_ex_window.parquet": [
+        "test",
+        "pair",
+        "statistic",
+        "pvalue",
+        "family"
+      ],
+      "holm_final.parquet": [
+        "pair",
+        "sample",
+        "statistic",
+        "raw_p",
+        "holm_p",
+        "decision",
+        "sign",
+        "headline_sample"
+      ],
+      "mlp_tests.parquet": [
+        "test",
+        "pair",
+        "sample",
+        "statistic",
+        "pvalue",
+        "family"
+      ],
+      "mlp_regimes.parquet": [
+        "sample",
+        "regime",
+        "n",
+        "mean_qlike_m2",
+        "mean_qlike_m4",
+        "difference_m4_minus_m2"
+      ],
+      "q2_summary.parquet": [
+        "variable",
+        "sample",
+        "group",
+        "label",
+        "n",
+        "mean",
+        "median",
+        "share_positive",
+        "hac_t",
+        "p_two_sided",
+        "snapshot_id"
+      ]
+    },
+    "model_mapping": [
+      {
+        "id": "M0",
+        "name": "Persistence baseline"
+      },
+      {
+        "id": "M1",
+        "name": "HAR"
+      },
+      {
+        "id": "M2",
+        "name": "HAR-X"
+      },
+      {
+        "id": "M3",
+        "name": "GARCH"
+      },
+      {
+        "id": "M4",
+        "name": "MLP"
+      }
+    ],
+    "model_mapping_source": "prereg/PREREGISTRATION.md, section 4.2 model table (M1 through M4); M0 is the persistence baseline in scripts/run_eval.py.",
+    "note": "Horizon is shown as 30d from the target definition; loss input has no horizon column."
+  },
+  "platform_evidence": {
+    "status": "available",
+    "files": {
+      "10c_kafka.json": {
+        "clean_publisher": {
+          "dlq": 0,
+          "duplicates_suppressed": 0,
+          "processed": 266
+        },
+        "indexer": {
+          "dlq": 0,
+          "duplicates_suppressed": 0,
+          "processed": 266
+        },
+        "uploader": {
+          "dlq": 0,
+          "duplicates_suppressed": 266,
+          "processed": 0
+        }
+      },
+      "10c_athena.json": {
+        "count_by_partition.sql": {
+          "query_execution_id": "478fc792-7e83-4da3-a1b2-e4ef72727d15",
+          "state": "SUCCEEDED",
+          "data_scanned_bytes": 0,
+          "engine_ms": 857,
+          "row_count": 34,
+          "rows": [
+            [
+              "2010",
+              "minutes",
+              "8"
+            ],
+            [
+              "2010",
+              "statement",
+              "8"
+            ],
+            [
+              "2011",
+              "minutes",
+              "8"
+            ],
+            [
+              "2011",
+              "statement",
+              "8"
+            ],
+            [
+              "2012",
+              "minutes",
+              "7"
+            ],
+            [
+              "2012",
+              "statement",
+              "8"
+            ],
+            [
+              "2013",
+              "minutes",
+              "8"
+            ],
+            [
+              "2013",
+              "statement",
+              "8"
+            ],
+            [
+              "2014",
+              "minutes",
+              "8"
+            ],
+            [
+              "2014",
+              "statement",
+              "8"
+            ],
+            [
+              "2015",
+              "minutes",
+              "8"
+            ],
+            [
+              "2015",
+              "statement",
+              "8"
+            ],
+            [
+              "2016",
+              "minutes",
+              "8"
+            ],
+            [
+              "2016",
+              "statement",
+              "8"
+            ],
+            [
+              "2017",
+              "minutes",
+              "8"
+            ],
+            [
+              "2017",
+              "statement",
+              "8"
+            ],
+            [
+              "2018",
+              "minutes",
+              "8"
+            ],
+            [
+              "2018",
+              "statement",
+              "8"
+            ],
+            [
+              "2019",
+              "minutes",
+              "8"
+            ],
+            [
+              "2019",
+              "statement",
+              "8"
+            ],
+            [
+              "2020",
+              "minutes",
+              "7"
+            ],
+            [
+              "2020",
+              "statement",
+              "7"
+            ],
+            [
+              "2021",
+              "minutes",
+              "8"
+            ],
+            [
+              "2021",
+              "statement",
+              "8"
+            ],
+            [
+              "2022",
+              "minutes",
+              "8"
+            ],
+            [
+              "2022",
+              "statement",
+              "8"
+            ],
+            [
+              "2023",
+              "minutes",
+              "8"
+            ],
+            [
+              "2023",
+              "statement",
+              "8"
+            ],
+            [
+              "2024",
+              "minutes",
+              "8"
+            ],
+            [
+              "2024",
+              "statement",
+              "8"
+            ],
+            [
+              "2025",
+              "minutes",
+              "8"
+            ],
+            [
+              "2025",
+              "statement",
+              "8"
+            ],
+            [
+              "2026",
+              "minutes",
+              "6"
+            ],
+            [
+              "2026",
+              "statement",
+              "7"
+            ]
+          ],
+          "cost_usd_estimate": 0.0,
+          "cost_label": "ESTIMATE"
+        },
+        "lengths.sql": {
+          "query_execution_id": "8f894f6c-60ba-41e3-a62b-c4b326745bca",
+          "state": "SUCCEEDED",
+          "data_scanned_bytes": 20748,
+          "engine_ms": 772,
+          "row_count": 2,
+          "rows": [
+            [
+              "minutes",
+              "60120.03787878788",
+              "30442"
+            ],
+            [
+              "statement",
+              "3111.805970149254",
+              "840"
+            ]
+          ],
+          "cost_usd_estimate": 1.0374e-07,
+          "cost_label": "ESTIMATE"
+        },
+        "partition_check.sql": {
+          "query_execution_id": "a93abb23-de94-46a2-8feb-a33d39fb9789",
+          "state": "SUCCEEDED",
+          "data_scanned_bytes": 1330,
+          "engine_ms": 423,
+          "row_count": 7,
+          "rows": [
+            [
+              "statement-20200129",
+              "2020-01-29"
+            ],
+            [
+              "statement-20200429",
+              "2020-04-29"
+            ],
+            [
+              "statement-20200610",
+              "2020-06-10"
+            ],
+            [
+              "statement-20200729",
+              "2020-07-29"
+            ],
+            [
+              "statement-20200916",
+              "2020-09-16"
+            ],
+            [
+              "statement-20201105",
+              "2020-11-05"
+            ],
+            [
+              "statement-20201216",
+              "2020-12-16"
+            ]
+          ],
+          "cost_usd_estimate": 6.65e-09,
+          "cost_label": "ESTIMATE"
+        }
+      },
+      "10c_evidence.json": {
+        "athena_counts": {
+          "bytes_scanned": {
+            "count_by_partition.sql": 0,
+            "lengths.sql": 20748,
+            "partition_check.sql": 1330
+          },
+          "partition_check_rows": 7,
+          "present": true,
+          "queries": {
+            "count_by_partition.sql": {
+              "row_count": 34,
+              "state": "SUCCEEDED"
+            },
+            "lengths.sql": {
+              "row_count": 2,
+              "state": "SUCCEEDED"
+            },
+            "partition_check.sql": {
+              "row_count": 7,
+              "state": "SUCCEEDED"
+            }
+          },
+          "status": "PASS",
+          "totals_by_doc_type": {
+            "minutes": 132,
+            "statement": 134
+          }
+        },
+        "d1_chunk_parity": {
+          "extra_chunk_ids": [],
+          "frame_mismatch": null,
+          "missing_chunk_ids": [],
+          "rebuilt_chunks": 6620,
+          "status": "PASS",
+          "stored_chunks": 6620
+        },
+        "lake_text_parity": {
+          "document_docs": 266,
+          "extra_doc_ids": [],
+          "lake_docs": 266,
+          "missing_doc_ids": [],
+          "same_doc_ids": true,
+          "status": "PASS",
+          "text_mismatch_doc_ids": []
+        },
+        "lambda_metrics": {
+          "end": "2026-11-16T10:38:13.160405+00:00",
+          "errors": 0,
+          "function": "vfl-extract",
+          "invocations": 266,
+          "start": "2026-11-16T10:17:50.723924+00:00",
+          "status": "PASS"
+        }
+      },
+      "retrieval_eval_10c.parquet": {
+        "rows": 9,
+        "columns": [
+          "mode",
+          "gold_doc_type",
+          "n",
+          "recall_at_5",
+          "hit_at_5",
+          "mrr_at_10"
+        ],
+        "records": [
+          {
+            "mode": "bm25_os",
+            "gold_doc_type": "minutes",
+            "n": 7,
+            "recall_at_5": 0.6428571428571429,
+            "hit_at_5": 0.7142857142857143,
+            "mrr_at_10": 0.5285714285714286
+          },
+          {
+            "mode": "bm25_os",
+            "gold_doc_type": "statement",
+            "n": 8,
+            "recall_at_5": 0.125,
+            "hit_at_5": 0.125,
+            "mrr_at_10": 0.07738095238095238
+          },
+          {
+            "mode": "dense",
+            "gold_doc_type": "minutes",
+            "n": 7,
+            "recall_at_5": 0.5476190476190476,
+            "hit_at_5": 0.7142857142857143,
+            "mrr_at_10": 0.501360544217687
+          },
+          {
+            "mode": "dense",
+            "gold_doc_type": "statement",
+            "n": 8,
+            "recall_at_5": 0.25,
+            "hit_at_5": 0.25,
+            "mrr_at_10": 0.09841269841269841
+          },
+          {
+            "mode": "fused_os",
+            "gold_doc_type": "minutes",
+            "n": 7,
+            "recall_at_5": 0.8333333333333333,
+            "hit_at_5": 1.0,
+            "mrr_at_10": 0.719047619047619
+          },
+          {
+            "mode": "fused_os",
+            "gold_doc_type": "statement",
+            "n": 8,
+            "recall_at_5": 0.375,
+            "hit_at_5": 0.375,
+            "mrr_at_10": 0.125
+          },
+          {
+            "mode": "bm25_os",
+            "gold_doc_type": "all",
+            "n": 15,
+            "recall_at_5": 0.36666666666666664,
+            "hit_at_5": 0.4,
+            "mrr_at_10": 0.28793650793650793
+          },
+          {
+            "mode": "dense",
+            "gold_doc_type": "all",
+            "n": 15,
+            "recall_at_5": 0.3888888888888889,
+            "hit_at_5": 0.4666666666666667,
+            "mrr_at_10": 0.28645502645502646
+          },
+          {
+            "mode": "fused_os",
+            "gold_doc_type": "all",
+            "n": 15,
+            "recall_at_5": 0.5888888888888889,
+            "hit_at_5": 0.6666666666666666,
+            "mrr_at_10": 0.4022222222222222
+          }
+        ]
+      }
+    }
+  }
+}

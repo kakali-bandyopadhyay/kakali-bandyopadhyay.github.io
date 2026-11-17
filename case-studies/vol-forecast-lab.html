@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Does VIX-implied variance improve a HAR forecast? · case study</title>
+<meta name="description" content="A pre-registered volatility forecasting study and evidence-gated FOMC document platform using public data.">
+<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../assets/style.css?v=20261117p13g">
+<style>
+.cs-hero{background:linear-gradient(135deg,#1b1f4b 0%,#2e3a87 55%,#4057b5 100%)}
+.cs-chips span{white-space:nowrap}
+.cs-main .glance .p-card{border-top:4px solid var(--flow)}
+.cs-main .glance .p-num{display:block;font-size:18px;line-height:1.2;font-weight:700;color:var(--flow)}
+.cs-main .glance .p-lbl{display:block;font-size:12.5px;color:var(--mute);margin-top:3px}
+.approach-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 20px}
+.approach-card p{margin:7px 0 0}
+.overview-figure{max-width:760px;margin:14px auto 6px}
+.overview-figure img{display:block;width:100%;max-width:100%;height:auto;margin:0 auto}
+.table-scroll{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin:10px 0 18px;-webkit-overflow-scrolling:touch}
+.table-scroll table{min-width:760px;margin:0}
+.table-scroll.regime table{min-width:700px}
+.table-scroll th{position:sticky;top:0;background:var(--card)}
+.evidence-register{display:grid;grid-template-columns:minmax(110px,.7fr) minmax(0,2fr);gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.evidence-register dt,.evidence-register dd{margin:0;padding:9px 11px;border-bottom:1px solid var(--line)}
+.evidence-register dt{font-weight:700;background:var(--accent-bg);color:var(--accent)}
+.evidence-register dd{overflow-wrap:anywhere}
+@media(max-width:600px){.evidence-register{grid-template-columns:1fr}.evidence-register dt{border-bottom:0;padding-bottom:2px}.evidence-register dd{padding-top:3px}}
+@media(max-width:600px){.approach-cards{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header class="cs-hero">
+<div class="cs-hero-inner">
+<nav><a href="/?track=data">← Portfolio</a></nav>
+<span class="cs-pill">Case study · pre-registered study · public data</span>
+<h1>Does VIX-implied variance improve a HAR forecast of S&amp;P 500 variance – and can a platform prove every number?</h1>
+<p class="cs-lede">Clark–West p = 0.0009 outside Feb–Apr 2020 · fused retrieval recall@5 0.589 · agent 0.844 (38/45), no unverified number</p>
+<div class="cs-chips"><span>Pre-registered</span><span>Walk-forward</span><span>Kafka</span><span>AWS lake</span><span>OpenSearch + Qdrant</span><span>LangGraph</span><span>MLflow</span><span>Airflow</span><span>kind</span></div>
+<p class="cs-actions">
+  <a class="cs-btn primary" href="/vol-forecast-lab/dashboard/">Open the live dashboard</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/FINDINGS.md">Findings</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/EVIDENCE.md">Evidence</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab">Code</a>
+</p>
+</div>
+</header>
+
+<main class="cs-main">
+<h2 id="problem">The problem</h2>
+<div class="callout lead-problem">
+<p>A volatility forecaster needs to know whether implied variance adds information beyond a HAR forecast of future S&amp;P 500 variance. The platform also has to prove every number it serves, from a forecast statistic to a retrieval result. The research and the FOMC document pipeline need traceable evidence without using text as a model feature.</p>
+</div>
+
+<h2 id="approach">The approach</h2>
+<div class="approach-cards" aria-label="Three steps in the study and platform">
+  <article class="p-card approach-card"><span class="p-num">1 · Pre-register</span><p>Fix the hypotheses, tests and evaluation windows before results exist; tag the plan so the timing is traceable.</p></article>
+  <article class="p-card approach-card"><span class="p-num">2 · Build and test</span><p>Run walk-forward forecasting models alongside the FOMC document, search and agent platform.</p></article>
+  <article class="p-card approach-card"><span class="p-num">3 · Prove every number</span><p>Trace claims to the evidence register, keep the agent copy-only, and check for leakage and licence boundaries.</p></article>
+</div>
+
+<dl class="glance" aria-label="Study at a glance">
+  <div class="p-card"><dt>Test size</dt><dd><span class="p-num">1,632</span><span class="p-lbl">ex-window forecasts</span></dd></div>
+  <div class="p-card"><dt>HAR-X vs HAR</dt><dd><span class="p-num">p = 0.0009</span><span class="p-lbl">Clark–West · ex-window</span></dd></div>
+  <div class="p-card"><dt>Retrieval</dt><dd><span class="p-num">0.589 vs 0.389</span><span class="p-lbl">fused vs dense recall@5</span></dd></div>
+  <div class="p-card"><dt>Agent</dt><dd><span class="p-num">38/45</span><span class="p-lbl">accuracy · USD 0.064 total</span></dd></div>
+</dl>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#design">Question and design</a><a href="#results">Results</a><a href="#platform">The platform</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
+</nav>
+
+<h2 id="design">1. The question and the design</h2>
+<p>The forecast study asks whether VIX-implied variance adds information beyond lagged realised variance in a HAR forecast of 30-day total variance. The specification and evaluation were pre-registered under tag <code>v0.1-prereg</code>. A walk-forward design refits on past data and evaluates later dates; the test period contains 1,703 forecasts across 82 refit blocks.</p>
+<p>There is one headline test: the one-sided Clark–West comparison of HAR-X with HAR. The Feb–Apr 2020 window rule was fixed after the full-sample result was known and before any ex-window result was computed. The headline therefore reports the full sample beside the pre-specified ex-window sample. Secondary QLIKE comparisons are adjusted together using Holm in both samples; they are reported as not detected after adjustment.</p>
+
+<h2 id="results">2. Results</h2>
+<p>These are measured results from the committed study and platform run. Non-rejections are reported as not detected, and the retrieval table retains the earlier hybrid miss beside the later cloud result.</p>
+<div class="table-scroll" role="region" aria-label="Study headline results table" tabindex="0">
+<table>
+<thead><tr><th>Question / evaluation</th><th>Result</th><th>Reading</th></tr></thead>
+<tbody>
+<tr><td>Q1 · HAR-X vs HAR (Clark–West, full)</td><td>t = 1.557; one-sided p = 0.0597</td><td>Not detected on the full sample</td></tr>
+<tr><td>Q1 · HAR-X vs HAR (Clark–West, ex-window)</td><td>t = 3.14; one-sided p = 0.0009; n = 1,632</td><td>Detected outside Feb–Apr 2020; headline</td></tr>
+<tr><td>Q1b · HAR-X vs HAR (DM QLIKE)</td><td>Full raw → Holm p: 0.737 → 1.000; ex-window: 0.140 → 0.281</td><td>Not detected after Holm in either sample</td></tr>
+<tr><td>Q1c · MLP vs HAR-X (DM QLIKE)</td><td>Full raw → Holm p: 0.849 → 1.000; ex-window: 0.056 → 0.224</td><td>Not detected after Holm in either sample</td></tr>
+<tr><td>Q1d · HAR vs GARCH (DM QLIKE)</td><td>Full raw → Holm p: 0.405 → 1.000; ex-window: 0.173 → 0.281</td><td>Not detected after Holm in either sample</td></tr>
+<tr><td>Q1d · HAR vs persistence (DM QLIKE)</td><td>Full raw → Holm p: 0.027 → 0.107; ex-window: 0.094 → 0.281</td><td>Not detected after Holm in either sample</td></tr>
+<tr><td>Q2 · Ex-ante spread (IV − HAR)</td><td>Full t = 7.80; ex-window t = 7.75</td><td>Positive and significant in both samples</td></tr>
+<tr><td>Q2 · Ex-post premium (IV − RV30)</td><td>Full t = 1.06, p = 0.288; ex-window t = 7.05</td><td>Positive; detected outside spring 2020, not on full sample</td></tr>
+<tr><td>Q3 · CPI overnight variance</td><td>+37% (95% CI +4% to +80%); Holm p = 0.033</td><td>Detected; positive as hypothesised</td></tr>
+<tr><td>Q3 · FOMC session variance</td><td>+84% (95% CI +30% to +160%); Holm p = 0.001</td><td>Detected; positive as hypothesised</td></tr>
+<tr><td>Retrieval · 15 frozen questions</td><td>Step 10b hybrid 0.322; dense 0.389. Step 10c fused 0.589; cloud/local parity 266/266 documents and 6,620/6,620 chunks</td><td>Cloud fused result is higher; the earlier hybrid did not beat dense</td></tr>
+<tr><td>Agent · 15 questions × 3 repeats</td><td>0.844 (38/45); USD 0.064 total</td><td>No unverified number reached any answer</td></tr>
+</tbody>
+</table>
+</div>
+<p>Q1’s regime breakdown is descriptive, has no Holm adjustment, and is not a headline test. Each cell has at least 100 observations; its p-values are one-sided Clark–West values.</p>
+<div class="table-scroll regime" role="region" aria-label="Q1 descriptive regime breakdown" tabindex="0">
+<table>
+<thead><tr><th>Sample</th><th>Grouping</th><th>Regime</th><th>n</th><th>t</th><th>One-sided p</th></tr></thead>
+<tbody>
+<tr><td>Full</td><td>VIX tercile</td><td>Low</td><td>282</td><td>1.0919</td><td>0.137437</td></tr>
+<tr><td>Full</td><td>VIX tercile</td><td>Mid</td><td>552</td><td>1.8101</td><td>0.0351374</td></tr>
+<tr><td>Full</td><td>VIX tercile</td><td>High</td><td>869</td><td>1.5377</td><td>0.0620571</td></tr>
+<tr><td>Full</td><td>Calendar</td><td>2020</td><td>253</td><td>1.4683</td><td>0.0710164</td></tr>
+<tr><td>Full</td><td>Calendar</td><td>2021–2023</td><td>753</td><td>2.0776</td><td>0.0188748</td></tr>
+<tr><td>Full</td><td>Calendar</td><td>2024–end</td><td>697</td><td>2.1867</td><td>0.0143838</td></tr>
+<tr><td>Ex-window</td><td>VIX tercile</td><td>Low</td><td>273</td><td>4.6277</td><td>1.84841 × 10⁻⁶</td></tr>
+<tr><td>Ex-window</td><td>VIX tercile</td><td>Mid</td><td>539</td><td>2.5191</td><td>0.00588313</td></tr>
+<tr><td>Ex-window</td><td>VIX tercile</td><td>High</td><td>820</td><td>2.4809</td><td>0.00655285</td></tr>
+<tr><td>Ex-window</td><td>Calendar</td><td>2020</td><td>182</td><td>1.5227</td><td>0.0639161</td></tr>
+<tr><td>Ex-window</td><td>Calendar</td><td>2021–2023</td><td>753</td><td>2.0776</td><td>0.0188748</td></tr>
+<tr><td>Ex-window</td><td>Calendar</td><td>2024–end</td><td>697</td><td>2.1867</td><td>0.0143838</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="platform">3. The platform</h2>
+<p>The forecasting study and the document pipeline are separate by design: retrieval supplies evidence and citations, not text features to the forecast models. The platform moves each document through a traceable data path, with parity checks between local and cloud outputs.</p>
+<figure class="overview-figure">
+  <img src="../assets/img/vol-forecast-lab-overview.svg" alt="Overview: public data feeds a pre-registered forecasting study and a document pipeline with search; a LangGraph agent repeats only verified numbers">
+  <figcaption>Document and forecasting platform architecture</figcaption>
+</figure>
+<p><a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/figures/diagrams/platform.svg">Full platform diagram</a></p>
+<ul>
+  <li>Ingest → Kafka → S3 / Glue / Athena.</li>
+  <li>Spark compaction → OpenSearch + Qdrant retrieval.</li>
+  <li>Redis cache → API and copy-only LangGraph agent.</li>
+  <li>MLflow tracking, drift monitoring, Airflow orchestration, and a local Kubernetes (kind) deployment.</li>
+</ul>
+
+<h2 id="checks">4. How every number is checked</h2>
+<p>The evidence register links each public claim to its committed result, check command, and commit. The full register is in <a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/EVIDENCE.md">EVIDENCE.md</a>; the table below shows the checks behind the headline.</p>
+<dl class="evidence-register">
+  <dt>Clark–West headline</dt><dd><code>results/tests_ex_window.parquet</code> → <code>python scripts/run_eval.py</code> and the pre-committed window rule → commits <code>7775f9d</code> / <code>2b5358f</code>, <code>76ddb6d</code> / <code>11f25f8</code>.</dd>
+  <dt>Fused retrieval</dt><dd><code>results/text/retrieval_eval_10c.parquet</code> → <code>python scripts/run_eval_10c.py</code>, checking the index count before and after → commit <code>f100594</code>.</dd>
+  <dt>Agent and cost</dt><dd><code>results/agent/agent_eval.parquet</code> and <code>agent_eval_summary.json</code> → <code>python scripts/run_agent_eval.py</code> → commits <code>87a1523</code> and <code>376abe5</code>.</dd>
+  <dt>Cloud parity</dt><dd><code>results/text/10c_evidence.json</code> → <code>python scripts/collect_10c_evidence.py</code> against the recorded AWS run → commit <code>479a395</code>.</dd>
+  <dt>Planted-leak check</dt><dd>The evaluation harness adds the next-session realised variance to a placebo model; its QLIKE reduction is recorded by <code>planted_leak_drop()</code>. The leaky forecasts are not published.</dd>
+  <dt>Licence boundary</dt><dd>SPY and VIX price series require licensed access. The repository publishes statistics and aggregates, not per-date licensed series.</dd>
+</dl>
+
+<h2 id="limits">5. What it does not claim</h2>
+<ul>
+  <li>This is a research prototype using public data, not investment advice and not a trading system.</li>
+  <li>The infrastructure run is evidenced, but the orchestration and Kubernetes deployment are local; this is not a production deployment.</li>
+  <li>The forecasting results do not establish that VIX-implied variance is useful in every regime or support a trading threshold.</li>
+  <li>Agent accuracy is measured on a frozen question set; the verifier’s wrong-field and p-value-precision limits remain open.</li>
+</ul>
+
+<p class="note">Public data: SPY and VIX prices (licensed; only statistics and aggregates published) and Federal Reserve FOMC documents. Not investment advice.</p>
+<footer>Research prototype · <a href="/?track=data">Portfolio</a></footer>
+</main>
+</body>
+</html>
