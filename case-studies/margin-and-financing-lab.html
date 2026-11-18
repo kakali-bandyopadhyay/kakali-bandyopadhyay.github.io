@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Where should each position sit across prime brokers? · case study</title>
+<meta name="description" content="A pre-registered synthetic-data model for prime-broker allocation, margin and PM attribution.">
+<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../assets/style.css?v=20261117p13g">
+<style>
+.cs-hero{background:linear-gradient(135deg,#0a2e44 0%,#0f4c6e 55%,#1a6f9a 100%)}
+.cs-chips span{white-space:nowrap}
+.cs-main .glance .p-card{border-top:4px solid var(--flow)}
+.cs-main .glance .p-num{display:block;font-size:18px;line-height:1.2;font-weight:700;color:var(--flow)}
+.cs-main .glance .p-lbl{display:block;font-size:12.5px;color:var(--mute);margin-top:3px}
+.approach-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 20px}
+.approach-card p{margin:7px 0 0}
+.overview-figure{max-width:340px;margin:14px auto 6px}
+.overview-figure img{display:block;width:100%;max-width:100%;height:auto;margin:0 auto}
+.table-scroll{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin:10px 0 18px;-webkit-overflow-scrolling:touch}
+.table-scroll table{min-width:620px;margin:0}
+.table-scroll th{position:sticky;top:0;background:var(--card)}
+@media(max-width:600px){.approach-cards{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header class="cs-hero">
+<div class="cs-hero-inner">
+<nav><a href="/?track=quant">← Portfolio</a></nav>
+<span class="cs-pill">Case study · pre-registered model · synthetic data · worked example</span>
+<h1>Where should each position sit across prime brokers – and who should pay for the margin?</h1>
+<p class="cs-lede">214 positions placed across 4 prime brokers at a 90-day cost of USD 21,714,337 – 49 positions split across brokers, one counterparty limit and 48 borrow limits binding.</p>
+<div class="cs-chips"><span>Pre-registered</span><span>Margin proxy</span><span>LP (cvxpy + HiGHS)</span><span>DuckDB SQL</span><span>Leave-one-out attribution</span><span>Model document</span><span>CI</span></div>
+<p class="cs-actions">
+  <a class="cs-btn primary" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md">Read the model document</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md">Results</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/S1_GUIDE.md">Build guide</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab">Code</a>
+</p>
+</div>
+</header>
+
+<main class="cs-main">
+<dl class="glance" aria-label="Study at a glance">
+  <div class="p-card"><dt>Book</dt><dd><span class="p-num">214 positions · 10 PMs · 4 prime brokers · 77 products</span></dd></div>
+  <div class="p-card"><dt>90-day cost and margin</dt><dd><span class="p-num">USD 21,714,337</span><span class="p-lbl">Margin USD 1,747,690,859 · financing 17,345,110 + margin funding 4,369,227</span></dd></div>
+  <div class="p-card"><dt>Binding limits</dt><dd><span class="p-num">Capacity 0 of 4 PBs · counterparty 1 (PB_B) · borrow 48</span><span class="p-lbl">14 no-locate rows fixed at 0</span></dd></div>
+  <div class="p-card"><dt>Checks</dt><dd><span class="p-num">A1–A8 + X1–X3 pass</span><span class="p-lbl">Hand-worked example reproduced to the cent</span></dd></div>
+</dl>
+
+<h2 id="problem">The problem</h2>
+<div class="callout lead-problem">
+<p>A multi-PM fund spreads positions across prime brokers whose rates, offsets, borrow and limits differ. Where each position sits changes financing cost and margin locked up, so PMs need a fair, explainable view of the margin they drive.</p>
+</div>
+
+<h2 id="approach">The approach</h2>
+<div class="approach-cards" aria-label="Three steps in the study">
+  <article class="p-card approach-card"><span class="p-num">1 · Pre-register</span><p>Fix the model, parameters and acceptance tests, then commit them before model code.</p></article>
+  <article class="p-card approach-card"><span class="p-num">2 · Model</span><p>Calculate a margin proxy, find a cost-minimising allocation, then attribute PM usage.</p></article>
+  <article class="p-card approach-card"><span class="p-num">3 · Check</span><p>Reproduce the hand-worked example to the cent, test invariants and an exchange sanity band, and run CI on every push.</p></article>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#problem">The problem</a><a href="#approach">The approach</a><a href="#design">The question and the design</a><a href="#results">Results</a><a href="#model">How the model fits together</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
+</nav>
+
+<h2 id="design">1. The question and the design</h2>
+<p>The data contract defines positions, PMs, products, prime brokers, rates, borrow availability, parameters and price history as separate inputs. Each model input is tagged as sourced, assumed or to be calibrated; this study's book and broker terms are synthetic.</p>
+<p>The margin proxy groups by product family, liquidity tier and volatility bucket. It nets positions within a family at each broker, blends net and gross exposure, adds an account-relative issuer concentration charge, then applies a 1.15 house buffer. The linear program minimises financing, borrow and margin-funding cost over 90 days, subject to complete allocation, broker capacity, counterparty margin and borrow-availability constraints.</p>
+
+<h2 id="results">2. Results</h2>
+<p>The seeded run placed the full book across all four brokers. The measured results show which constraints bound and how margin usage and illustrative charges were attributed.</p>
+<div class="table-scroll" role="region" aria-label="Primary run headline results" tabindex="0">
+<table>
+<thead><tr><th>Measure</th><th>Result</th><th>Reading</th></tr></thead>
+<tbody>
+<tr><td>Objective over H</td><td>USD 21,714,337</td><td>Financing plus margin funding over 90 days</td></tr>
+<tr><td>Financing cost</td><td>USD 17,345,110</td><td>Measured run total</td></tr>
+<tr><td>Margin funding cost</td><td>USD 4,369,227</td><td>Measured run total</td></tr>
+<tr><td>Total margin M</td><td>USD 1,747,690,859</td><td>Recalculated from the chosen allocation</td></tr>
+<tr><td>Allocation</td><td>214 positions; all 4 PBs used; 49 split positions</td><td>Each position is fully allocated</td></tr>
+<tr><td>Capacity</td><td>0 of 4 PBs binding</td><td>No capacity limit binds</td></tr>
+<tr><td>Counterparty</td><td>PB_B binds at USD 211,730,389</td><td>Other 3 PBs have slack</td></tr>
+<tr><td>Borrow</td><td>48 positive borrow limits bind; 14 no-locate rows have limit 0</td><td>Unavailable required locates are fixed at 0</td></tr>
+</tbody>
+</table>
+</div>
+<p>E1–E5 were fixed in the pre-registration before the run; each is reported as measured.</p>
+<div class="table-scroll" role="region" aria-label="Pre-registered expected behaviour results" tabindex="0">
+<table>
+<thead><tr><th>Expectation</th><th>Measured outcome</th></tr></thead>
+<tbody>
+<tr><td>E1 · Hedged pairs inside a family sit at one PB unless capacity or borrow forces a split</td><td>Not confirmed as stated – 11 of 26 hedged families sit at one PB and 15 are split; the run does not isolate why.</td></tr>
+<tr><td>E2 · At least one capacity or counterparty constraint binds; the cheapest PB on financing is not the sole PB used</td><td>Confirmed – counterparty binds at PB_B; all 4 PBs hold positions.</td></tr>
+<tr><td>E3 · Shorts in issuers with locate at only one PB sit there; tight locate shows a positive borrow dual</td><td>Confirmed – all 7 short positions in sole-locate issuers sit at that PB; across the book, 48 binding borrow limits have positive duals.</td></tr>
+<tr><td>E4 · At least one PM has u_k &lt; 0</td><td>Not confirmed – no PM has negative usage.</td></tr>
+<tr><td>E5 · θ 0.25 → 0.30 lowers M; θ → 0.20 raises M weakly</td><td>Confirmed – M is 1,749,176,390 at θ 0.20, 1,747,690,859 at base, and 1,745,978,305 at θ 0.30 USD.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md">Full results and exhibits</a></p>
+
+<h2 id="model">3. How the model fits together</h2>
+<figure class="overview-figure">
+  <img src="../assets/img/margin-and-financing-lab-flow.svg" width="306" height="416" alt="Synthetic book and broker terms flow through a margin proxy, cost-minimising allocation and PM attribution into a report and model document">
+  <figcaption>Model and reporting flow</figcaption>
+</figure>
+<p><a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/diagrams/module_flow.svg">Module diagram (full)</a></p>
+
+<h2 id="checks">4. How every number is checked</h2>
+<div class="table-scroll" role="region" aria-label="Acceptance and exhibit checks" tabindex="0">
+<table>
+<thead><tr><th>Test</th><th>What it proves</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td>Hand calculation for margin, attribution and charge matches the worked example.</td></tr>
+<tr><td>A2</td><td>Margin invariants: zero and nonnegative values, monotonicity, convexity, homogeneity and determinism.</td></tr>
+<tr><td>A3–A4</td><td>The stated offset rule reduces margin, and positions at different PBs do not net.</td></tr>
+<tr><td>A5</td><td>Constraint checks, infeasibility diagnosis and epigraph agreement.</td></tr>
+<tr><td>A6</td><td>Usage totals and ordering, empty cases and invalid-rate rejection.</td></tr>
+<tr><td>A7</td><td>One matched-product exchange margin falls inside the pre-set sanity band; this is not calibration.</td></tr>
+<tr><td>A8</td><td>Required validation disclosure and heading sequence.</td></tr>
+<tr><td>X1–X3</td><td>Re-solve, all-in cost and Euler range exhibits.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Changes from the pre-registration are recorded in <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/prereg/DEVIATIONS.md">the deviations log</a>. Regenerate the outputs with <code>python -m mfl.cli run --seed 42 --out reports/local</code>.</p>
+
+<h2 id="limits">5. What it does not claim</h2>
+<ul>
+  <li>This is not a portfolio-margin model and it is not calibrated to any broker.</li>
+  <li>The book and broker terms are synthetic; the charge is illustrative.</li>
+  <li>The model is not validated. See <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md#12-validation-status">MODEL_DOC.md §12</a>.</li>
+  <li>The proxy uses limited per-broker family offsets and does not represent a broker's actual methodology.</li>
+</ul>
+
+<p class="note">Synthetic data generated for this study; the only public input is one exchange margin figure used as a sanity check. Illustrative model – not validated, not any firm's methodology.</p>
+<footer>Quant research · <a href="/?track=quant">Portfolio</a></footer>
+</main>
+</body>
+</html>

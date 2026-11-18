@@ -76,6 +76,7 @@ class PortfolioContentChecks(unittest.TestCase):
     def test_default_and_track_hero_copy(self):
         self.assertIn(f'<p class="sub" id="hero-sub">{ALL_SUB}</p>', HTML)
         self.assertIn('data: ["Data platforms and governance", "Event-driven pipelines, entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],', HTML)
+        self.assertIn('quant: ["Quant research and treasury models", "Pre-registered studies, margin and financing optimisation, forecasting.", "Quant research and treasury models – Portfolio"],', HTML)
         self.assertIn(f'ai: ["{AI_SUB}", "Forecasting, retrieval, evaluation and controls.", "{AI_PAGE_TITLE}"],', HTML)
         self.assertNotIn('if (track === "ai") {', HTML)
         self.assertIn('strong.textContent = copy[0] + ". ";', HTML)
@@ -200,6 +201,117 @@ class PortfolioContentChecks(unittest.TestCase):
         anchors = HrefParser()
         anchors.feed(case)
         assert_relative_links_resolve(self, anchors.hrefs, case_path)
+
+
+class MarginFinancingLabChecks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.case_path = ROOT / "case-studies" / "margin-and-financing-lab.html"
+        cls.case = cls.case_path.read_text(encoding="utf-8")
+        cls.lab = ROOT.parent / "margin-and-financing-lab"
+        cls.results = (cls.lab / "RESULTS.md").read_text(encoding="utf-8")
+        cls.model = (cls.lab / "docs" / "MODEL_DOC.md").read_text(encoding="utf-8")
+        cls.sources = (cls.lab / "data" / "SOURCES.md").read_text(encoding="utf-8")
+        cls.source_text = "\n".join((cls.results, cls.model, cls.sources))
+
+    def test_case_sections_and_numbering(self):
+        self.assertTrue(self.case_path.is_file())
+        headings = re.findall(r'<h2 id="([^"]+)">(.*?)</h2>', self.case, re.S)
+        self.assertEqual([item[0] for item in headings], ["problem", "approach", "design", "results", "model", "checks", "limits"])
+        self.assertEqual([re.sub(r"<[^>]+>", "", item[1]).split(". ", 1)[0] for item in headings[2:]], ["1", "2", "3", "4", "5"])
+
+    def test_case_favicons_and_versioned_stylesheet(self):
+        self.assertEqual(self.case.count('<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">'), 1)
+        self.assertEqual(self.case.count('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">'), 1)
+        self.assertRegex(self.case, r'<link rel="stylesheet" href="\.\./assets/style\.css\?v=[^" ]+">')
+
+    def test_repo_links_resolve_and_no_reports_links(self):
+        self.assertTrue(self.lab.is_dir(), f"Missing source repository: {self.lab}")
+        documents = (self.case, HTML)
+        for document in documents:
+            urls = re.findall(r'https://github\.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/([^"?#]+)', document)
+            for relative in urls:
+                self.assertTrue((self.lab / Path(*relative.split("/"))).is_file(), relative)
+            hrefs = re.findall(r'<a\b[^>]*\bhref="([^"]+)"', document)
+            self.assertFalse(any("reports/" in href for href in hrefs))
+            for href in hrefs:
+                if urlsplit(href).scheme or href.startswith(("/", "#")):
+                    continue
+                self.assertFalse(re.match(r"(?:\.\.?/)?(?:docs|src|tests|prereg|data)/", href), href)
+
+    def test_diagram_image_viewbox_and_dimensions(self):
+        image = ROOT / "assets" / "img" / "margin-and-financing-lab-flow.svg"
+        self.assertTrue(image.is_file())
+        svg = image.read_text(encoding="utf-8")
+        viewbox = re.search(r'viewBox="([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)"', svg)
+        self.assertIsNotNone(viewbox)
+        _, _, width, height = map(float, viewbox.groups())
+        img = re.search(r'<img[^>]*src="\.\./assets/img/margin-and-financing-lab-flow\.svg"[^>]*>', self.case)
+        self.assertIsNotNone(img)
+        attrs = dict(re.findall(r'(width|height)="([^"]+)"', img.group(0)))
+        self.assertEqual(attrs, {"width": str(round(width)), "height": str(round(height))})
+        self.assertLessEqual(width, 800)
+        self.assertGreaterEqual(height / width, 0.6)
+        self.assertLessEqual(height / width, 1.6)
+
+    def test_result_hero_and_glance_numbers_have_provenance(self):
+        result_start = self.case.index('<h2 id="results">')
+        result_end = self.case.index('<h2 id="model">', result_start)
+        result_section = self.case[result_start:result_end]
+        hero = re.search(r'<p class="cs-lede">(.*?)</p>', self.case, re.S).group(1)
+        glance = re.search(r'<dl class="glance".*?</dl>', self.case, re.S).group(0)
+        for region in (result_section, hero, glance):
+            for number in re.findall(r"\d+(?:,\d{3})*(?:\.\d+)?%?", region):
+                self.assertIn(number, self.source_text, number)
+
+    def test_firm_term_scan_reuses_local_ignored_terms(self):
+        terms = [t.strip() for t in (ROOT / "checks" / "scan-terms.local.txt").read_text(encoding="utf-8").splitlines() if t.strip()]
+        for document in (self.case, HTML):
+            for term in terms:
+                self.assertNotIn(term, document)
+
+    def test_quant_card_and_feature_panel(self):
+        self.assertEqual(HTML.count('<div class="card" data-tracks="quant data" data-featured-track="quant">'), 1)
+        self.assertEqual(HTML.count('<div class="feature-panel" data-feature-panel="quant" hidden>'), 1)
+        card = re.search(r'<div class="card" data-tracks="quant data" data-featured-track="quant">(.*?)</div>', HTML, re.S).group(1)
+        expected_tags = ["Quant research", "Optimisation", "Treasury", "Synthetic data"]
+        self.assertEqual(re.findall(r'<span class="tag">(.*?)</span>', card), expected_tags)
+        self.assertIn('src="assets/img/margin-and-financing-lab-thumb.svg"', HTML)
+        self.assertTrue((ROOT / "assets" / "img" / "margin-and-financing-lab-thumb.svg").is_file())
+        self.assertEqual(PAGE.cards[[c["title"] for c in PAGE.cards].index("Margin and financing lab")]["links"], [
+            "/case-studies/margin-and-financing-lab.html",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab",
+        ])
+
+    def test_quant_track_filter_and_short_link(self):
+        self.assertIn('quant: ["Quant research and treasury models", "Pre-registered studies, margin and financing optimisation, forecasting.", "Quant research and treasury models – Portfolio"],', HTML)
+        self.assertEqual(HTML.count('data-track-filter="quant" aria-pressed="false">Quant</button>'), 1)
+        self.assertIn('data-track-filter="data" aria-pressed="false">Data</button>\n  <button type="button" class="filter-chip" data-track-filter="quant" aria-pressed="false">Quant</button>', HTML)
+        short = (ROOT / "quant" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('content="0; url=https://kakali-bandyopadhyay.github.io/?track=quant"', short)
+        self.assertIn('window.location.replace("https://kakali-bandyopadhyay.github.io/?track=quant")', short)
+        self.assertIn('<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">', short)
+        self.assertIn('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">', short)
+
+    def test_volatility_card_moves_to_quant_without_changing_data_panel(self):
+        self.assertIn('<div class="card" data-tracks="data ai quant" data-featured-track="data">', HTML)
+        self.assertIn('<div class="feature-panel" data-feature-panel="data" hidden>', HTML)
+        self.assertIn('src="assets/img/vol-forecast-lab-thumb.svg"', HTML)
+        self.assertIn('<h3>Volatility forecasting lab: pre-registered study and data/AI platform</h3>', HTML)
+
+    def test_tsmom_card_copy_tags_and_links(self):
+        self.assertEqual(HTML.count('<div class="card" data-tracks="quant">'), 1)
+        card = re.search(r'<div class="card" data-tracks="quant">(.*?)</div>', HTML, re.S).group(1)
+        copy = "A pre-registered test (OSF) of time-series momentum across 18 cross-asset ETFs, 2011–2026. Effective breadth was measured before the run (B = 4.04), then the result reported against a size-corrected test: Sharpe +0.526, 95% interval [0.038, 1.054]."
+        self.assertIn(f"<p>{copy}</p>", card)
+        self.assertEqual(re.findall(r'<span class="tag">(.*?)</span>', card), ["Quant research", "Pre-registered (OSF)", "Python", "Market data"])
+        self.assertEqual(re.findall(r'<a href="([^"]+)">', card), [
+            "https://github.com/kakali-bandyopadhyay/tsmom-panel-study/blob/main/RESULTS.md",
+            "https://doi.org/10.17605/OSF.IO/W86XT",
+            "https://github.com/kakali-bandyopadhyay/tsmom-panel-study",
+        ])
 
 
 class VolForecastLabEventDrivenChecks(unittest.TestCase):
