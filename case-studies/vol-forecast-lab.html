@@ -28,6 +28,17 @@
 .evidence-register dd{overflow-wrap:anywhere}
 @media(max-width:600px){.evidence-register{grid-template-columns:1fr}.evidence-register dt{border-bottom:0;padding-bottom:2px}.evidence-register dd{padding-top:3px}}
 @media(max-width:600px){.approach-cards{grid-template-columns:minmax(0,1fr)}}
+.ed-figure{max-width:560px;margin:14px auto 6px}
+.ed-figure img{display:block;width:100%;max-width:100%;height:auto;margin:0 auto}
+.ed-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 18px}
+.ed-cards .p-card p{margin:7px 0 0}
+.ed-cards .ed-ev{font-size:13px;color:var(--mute)}
+.ed-cards .p-card.flow{border-top-color:var(--flow)}
+.ed-cards .p-card.flow .p-num{color:var(--flow)}
+.ed-cards .p-card.ok{border-top-color:var(--ok)}
+.ed-cards .p-card.ok .p-num{color:var(--ok)}
+.table-scroll.ed table{min-width:680px}
+@media(max-width:600px){.ed-cards{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -37,7 +48,7 @@
 <span class="cs-pill">Case study · pre-registered study · public data</span>
 <h1>Does VIX-implied variance improve a HAR forecast of S&amp;P 500 variance – and can a platform prove every number?</h1>
 <p class="cs-lede">Clark–West p = 0.0009 outside Feb–Apr 2020 · fused retrieval recall@5 0.589 · agent 0.844 (38/45), no unverified number</p>
-<div class="cs-chips"><span>Pre-registered</span><span>Walk-forward</span><span>Kafka</span><span>AWS lake</span><span>OpenSearch + Qdrant</span><span>LangGraph</span><span>MLflow</span><span>Airflow</span><span>kind</span></div>
+<div class="cs-chips"><span>Pre-registered</span><span>Walk-forward</span><span>Kafka</span><span>AWS lake</span><span>SQS&nbsp;·&nbsp;Lambda&nbsp;·&nbsp;DynamoDB</span><span>OpenSearch + Qdrant</span><span>LangGraph</span><span>MLflow</span><span>Airflow</span><span>kind</span></div>
 <p class="cs-actions">
   <a class="cs-btn primary" href="/vol-forecast-lab/dashboard/">Open the live dashboard</a>
   <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/FINDINGS.md">Findings</a>
@@ -68,7 +79,7 @@
 </dl>
 
 <nav class="toc" aria-label="Sections">
-  <a href="#design">Question and design</a><a href="#results">Results</a><a href="#platform">The platform</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
+  <a href="#design">Question and design</a><a href="#results">Results</a><a href="#platform">The platform</a><a href="#event-driven">Event-driven ingestion</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
 </nav>
 
 <h2 id="design">1. The question and the design</h2>
@@ -129,23 +140,60 @@
   <li>Spark compaction → OpenSearch + Qdrant retrieval.</li>
   <li>Redis cache → API and copy-only LangGraph agent.</li>
   <li>MLflow tracking, drift monitoring, Airflow orchestration, and a local Kubernetes (kind) deployment.</li>
+  <li>Event-driven document registry: SNS → SQS → Lambda → DynamoDB (<a href="#event-driven">section 4</a>).</li>
 </ul>
 
-<h2 id="checks">4. How every number is checked</h2>
+<h2 id="event-driven">4. Event-driven ingestion</h2>
+<p>Each of the 266 extracted FOMC documents is announced as a <code>document.registered</code> event. SNS delivers the events to an SQS queue, and a Lambda consumer writes a document registry in DynamoDB. The path ran once on live AWS and was destroyed after the run. It shows three behaviours of an at-least-once pipeline.</p>
+<figure class="ed-figure">
+  <img src="../assets/img/vol-forecast-lab-eventdriven.svg" width="582" height="786" alt="Event-driven path: a publisher sends one event per document to an SNS topic, which delivers to an SQS queue; a Lambda consumer writes a DynamoDB registry with a conditional put on the content key; messages that fail three receives move to a dead-letter queue and can be redriven to the main queue">
+  <figcaption>Event-driven document registry: SNS → SQS → Lambda → DynamoDB, with a dead-letter queue and redrive</figcaption>
+</figure>
+<p><a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/figures/diagrams/eventdriven.svg">Wide diagram</a></p>
+<div class="ed-cards" aria-label="Three behaviours shown on live AWS">
+  <article class="p-card flow"><span class="p-num">Effectively-once write</span><p>Delivery is at-least-once. The consumer writes an item only if its content key (document ID + SHA-256) is new, so a re-published or re-delivered event changes nothing.</p><p class="ed-ev">266 events re-published + 1 raw duplicate → 267 duplicates; still 266 items.</p></article>
+  <article class="p-card"><span class="p-num">Poison message → DLQ</span><p>An event with a schema version the consumer does not accept is reported as a batch-item failure, retried by SQS and moved to the dead-letter queue after 3 receives. Because the consumer reports partial batch failures, other messages in the same batch are not retried with it.</p><p class="ed-ev">3 rejections, DLQ 1, Lambda errors 0.</p></article>
+  <article class="p-card ok"><span class="p-num">Replay from DLQ</span><p>Accepting the new version is a configuration change, not a code redeploy. A redrive from the dead-letter queue writes the message once; publishing the same content again is a duplicate.</p><p class="ed-ev">DLQ 0, 267 items; replay → duplicate, still 267.</p></article>
+</div>
+<div class="table-scroll ed" role="region" aria-label="Event-driven run, phase by phase" tabindex="0">
+<table>
+<thead><tr><th>Phase</th><th>Action</th><th>Table items</th><th>Outcomes (cumulative)</th><th>DLQ</th><th>Lambda errors</th></tr></thead>
+<tbody>
+<tr><td>R2</td><td>Publish 266 events</td><td>266</td><td>written 266</td><td>0</td><td>0</td></tr>
+<tr><td>R3</td><td>Re-publish 266 + 1 raw SQS duplicate</td><td>266</td><td>written 266, duplicate 267</td><td>0</td><td>0</td></tr>
+<tr><td>R4</td><td>Publish 1 poison event (schema v2, not accepted)</td><td>266</td><td>+ rejected 3</td><td>1</td><td>0</td></tr>
+<tr><td>R5</td><td>Accept v1 and v2 (configuration change, no code redeploy) + DLQ redrive</td><td>267</td><td>written 267</td><td>0</td><td>0</td></tr>
+<tr><td>R6</td><td>Re-publish the same poison content</td><td>267</td><td>duplicate 268</td><td>0</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every phase met the target stated before the run. Publish-to-write latency for the 266-event run was p50 11 s and p95 17 s, measured to the second. It is set mainly by a maximum concurrency of 2 and a 1-second batching window, and was not tuned. The sanitised destroy log is committed.</p>
+<h3>Design choices</h3>
+<ul>
+  <li>SQS between SNS and Lambda gives buffering, batch and partial-failure control, a native dead-letter queue with redrive, and back-pressure through maximum concurrency. SNS leaves fan-out open for a second subscriber.</li>
+  <li>The idempotency key is the document content (<code>doc_id</code> + <code>sha256</code>), not the event ID. A re-extracted document with new content becomes a new version.</li>
+  <li>A standard queue, not FIFO: ordering is not needed because writes are idempotent and keyed.</li>
+  <li>No retry loops in the handler; SQS redelivery is the retry mechanism.</li>
+</ul>
+<p><a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/lambda/doc_registry/handler.py">Consumer code</a> · <a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/infra/eventdriven/README.md">Terraform and phase targets</a> · <a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/FINDINGS.md">Findings</a></p>
+
+<h2 id="checks">5. How every number is checked</h2>
 <p>The evidence register links each public claim to its committed result, check command, and commit. The full register is in <a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/EVIDENCE.md">EVIDENCE.md</a>; the table below shows the checks behind the headline.</p>
 <dl class="evidence-register">
   <dt>Clark–West headline</dt><dd><code>results/tests_ex_window.parquet</code> → <code>python scripts/run_eval.py</code> and the pre-committed window rule → commits <code>7775f9d</code> / <code>2b5358f</code>, <code>76ddb6d</code> / <code>11f25f8</code>.</dd>
   <dt>Fused retrieval</dt><dd><code>results/text/retrieval_eval_10c.parquet</code> → <code>python scripts/run_eval_10c.py</code>, checking the index count before and after → commit <code>f100594</code>.</dd>
   <dt>Agent and cost</dt><dd><code>results/agent/agent_eval.parquet</code> and <code>agent_eval_summary.json</code> → <code>python scripts/run_agent_eval.py</code> → commits <code>87a1523</code> and <code>376abe5</code>.</dd>
   <dt>Cloud parity</dt><dd><code>results/text/10c_evidence.json</code> → <code>python scripts/collect_10c_evidence.py</code> against the recorded AWS run → commit <code>479a395</code>.</dd>
+  <dt>Event-driven registry</dt><dd><code>results/eventdriven/evidence_R2.json</code> … <code>evidence_R6.json</code> → <code>python scripts/collect_eventdriven_evidence.py</code> against the recorded AWS run → commit <code>2a4b668</code>.</dd>
   <dt>Planted-leak check</dt><dd>The evaluation harness adds the next-session realised variance to a placebo model; its QLIKE reduction is recorded by <code>planted_leak_drop()</code>. The leaky forecasts are not published.</dd>
   <dt>Licence boundary</dt><dd>SPY and VIX price series require licensed access. The repository publishes statistics and aggregates, not per-date licensed series.</dd>
 </dl>
 
-<h2 id="limits">5. What it does not claim</h2>
+<h2 id="limits">6. What it does not claim</h2>
 <ul>
   <li>This is a research prototype using public data, not investment advice and not a trading system.</li>
   <li>The infrastructure run is evidenced, but the orchestration and Kubernetes deployment are local; this is not a production deployment.</li>
+  <li>The event-driven registry is one live run of 266 documents, destroyed afterwards. Its latency was not tuned and is not a throughput benchmark.</li>
   <li>The forecasting results do not establish that VIX-implied variance is useful in every regime or support a trading threshold.</li>
   <li>Agent accuracy is measured on a frozen question set; the verifier’s wrong-field and p-value-precision limits remain open.</li>
 </ul>

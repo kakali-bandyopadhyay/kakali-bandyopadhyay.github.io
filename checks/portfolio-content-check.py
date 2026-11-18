@@ -198,5 +198,108 @@ class PortfolioContentChecks(unittest.TestCase):
         anchors.feed(case)
         assert_relative_links_resolve(self, anchors.hrefs, case_path)
 
+
+class VolForecastLabEventDrivenChecks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.case_path = ROOT / "case-studies" / "vol-forecast-lab.html"
+        cls.case = cls.case_path.read_text(encoding="utf-8")
+        cls.event_start = cls.case.index('<h2 id="event-driven">')
+        cls.checks_start = cls.case.index('<h2 id="checks">')
+        cls.section = cls.case[cls.event_start:cls.checks_start]
+
+    def test_section_position_and_headings(self):
+        self.assertEqual(self.case.count('id="event-driven"'), 1)
+        self.assertLess(self.case.index('id="platform"'), self.event_start)
+        self.assertLess(self.event_start, self.checks_start)
+        headings = re.findall(r'<h2\b[^>]*>(.*?)</h2>', self.case, re.S)
+        headings = [re.sub(r"<[^>]+>", "", heading).strip() for heading in headings]
+        self.assertIn("4. Event-driven ingestion", headings)
+        self.assertIn("5. How every number is checked", headings)
+        self.assertIn("6. What it does not claim", headings)
+
+    def test_toc_order_and_anchor_count(self):
+        toc = re.search(r'<nav class="toc".*?</nav>', self.case, re.S).group(0)
+        labels = re.findall(r'<a\b[^>]*>(.*?)</a>', toc, re.S)
+        self.assertIn(["The platform", "Event-driven ingestion", "How numbers are checked"], [labels[i:i + 3] for i in range(len(labels) - 2)])
+        self.assertEqual(self.case.count('href="#event-driven"'), 2)
+
+    def test_hero_chip_follows_aws_lake_once(self):
+        chip = "<span>SQS&nbsp;·&nbsp;Lambda&nbsp;·&nbsp;DynamoDB</span>"
+        self.assertEqual(self.case.count(chip), 1)
+        self.assertIn("<span>AWS lake</span>" + chip, self.case)
+
+    def test_index_chips_appear_twice(self):
+        chip = '<span class="tag">SQS&nbsp;·&nbsp;Lambda&nbsp;·&nbsp;DynamoDB</span>'
+        self.assertEqual(HTML.count(chip), 2)
+
+    def test_diagram_file_dimensions_and_target(self):
+        image = re.search(r'<img\b[^>]*>', self.section).group(0)
+        attrs = dict(re.findall(r'([\w-]+)="([^"]*)"', image))
+        diagram = (self.case_path.parent / attrs["src"]).resolve()
+        self.assertTrue(diagram.is_file())
+        svg = diagram.read_text(encoding="utf-8")
+        viewbox = re.search(r'viewBox="([^"]+)"', svg)
+        self.assertIsNotNone(viewbox)
+        x, y, width, height = map(float, viewbox.group(1).split())
+        self.assertEqual(int(attrs["width"]), round(width))
+        self.assertEqual(int(attrs["height"]), round(height))
+        self.assertLessEqual(width, 800)
+        self.assertGreaterEqual(height / width, 0.6)
+        self.assertLessEqual(height / width, 1.6)
+
+    def test_root_absolute_favicons_remain(self):
+        self.assertIn('<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">', self.case)
+        self.assertIn('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">', self.case)
+
+    def test_repo_blob_links_resolve(self):
+        lab = ROOT.parent / "vol-forecast-lab"
+        self.assertTrue(lab.is_dir())
+        urls = re.findall(r'https://github\.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/([^"?#]+)', self.case)
+        self.assertTrue(urls)
+        for relative in urls:
+            self.assertTrue((lab / Path(*relative.split("/"))).is_file(), relative)
+
+    def test_relative_links_do_not_point_into_repo_code(self):
+        class LinkParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.hrefs = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "a":
+                    href = dict(attrs).get("href")
+                    if href:
+                        self.hrefs.append(href)
+
+        parser = LinkParser()
+        parser.feed(self.case)
+        for href in parser.hrefs:
+            if urlsplit(href).scheme or href.startswith("#"):
+                continue
+            self.assertTrue(
+                href.startswith(("../assets/", "/assets/", "/vol-forecast-lab/dashboard/", "/?track=")),
+                href,
+            )
+
+    def test_phase_table_and_latency(self):
+        table = re.search(r'<table>.*?</table>', self.section, re.S).group(0)
+        rows = re.findall(r'<tr>(.*?)</tr>', table, re.S)
+        body_rows = rows[1:]
+        first_cells = [re.search(r'<td>(.*?)</td>', row, re.S).group(1) for row in body_rows]
+        self.assertEqual(first_cells, ["R2", "R3", "R4", "R5", "R6"])
+        self.assertIn("p50 11 s", self.case)
+        self.assertIn("p95 17 s", self.case)
+
+    def test_firm_term_scan(self):
+        index = HTML
+        terms = [t.strip() for t in (ROOT / "checks" / "scan-terms.local.txt").read_text(encoding="utf-8").splitlines() if t.strip()]
+        for document in (self.case, index):
+            for term in terms:
+                self.assertNotIn(term, document)
+
+    def test_exactly_once_wording_is_absent(self):
+        self.assertNotIn("exactly-once", self.case.lower())
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
