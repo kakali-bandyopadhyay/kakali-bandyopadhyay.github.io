@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 HTML = (ROOT / "index.html").read_text(encoding="utf-8")
 ALL_SUB = "Applied ML and GenAI for investment and markets users: time-based evaluation, failure analysis, controls built in."
-AI_SUB = "Applied ML and GenAI: retrieval, evaluation and controls."
+AI_SUB = "Applied ML and GenAI"
 DEAL_TITLE = "Deal intelligence: from screening to an evidence-backed IC memo"
 LIFE_AI_TITLE = "Life and protection AI: which use cases go forward, under what controls"
 AI_PAGE_TITLE = "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"
@@ -75,8 +75,11 @@ PAGE.feed(HTML)
 class PortfolioContentChecks(unittest.TestCase):
     def test_default_and_track_hero_copy(self):
         self.assertIn(f'<p class="sub" id="hero-sub">{ALL_SUB}</p>', HTML)
-        self.assertIn(f'ai: ["{AI_SUB}", "", "{AI_PAGE_TITLE}"]', HTML)
-        self.assertIn('if (track === "ai") {\n        sub.textContent = copy[0];', HTML)
+        self.assertIn('data: ["Data platforms and governance", "Event-driven pipelines, entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],', HTML)
+        self.assertIn(f'ai: ["{AI_SUB}", "Forecasting, retrieval, evaluation and controls.", "{AI_PAGE_TITLE}"],', HTML)
+        self.assertNotIn('if (track === "ai") {', HTML)
+        self.assertIn('strong.textContent = copy[0] + ". ";', HTML)
+        self.assertIn('sub.append(strong, copy[1]);', HTML)
         self.assertIn('document.title = copy[2];', HTML)
 
     def test_featured_titles(self):

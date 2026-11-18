@@ -9,8 +9,8 @@
 (() => {
   const tracks = {
     "private-markets": ["Product builds for private-markets and deal workflows", "Deal intelligence, allocation controls, evidence-gated IC memos and IT separation planning.", "Private markets and deal workflow builds – Portfolio"],
-    ai: ["Applied ML and GenAI: retrieval, evaluation and controls.", "", "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"],
-    data: ["Data platforms and governance", "Entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
+    data: ["Data platforms and governance", "Event-driven pipelines, entity mastering, lineage and AI-ready warehouses.", "Data platforms and governance – Portfolio"],
+    ai: ["Applied ML and GenAI", "Forecasting, retrieval, evaluation and controls.", "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"],
     "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
     operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails; process mining and human-gated automation.", "Operations and controls builds – Portfolio"],
     transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"]
@@ -36,14 +36,10 @@
   window.setHero = (track) => {
     const copy = window.__heroTracks[track];
     if (copy) {
-      if (track === "ai") {
-        sub.textContent = copy[0];
-      } else {
-        sub.textContent = "";
-        const strong = document.createElement("strong");
-        strong.textContent = copy[0] + ". ";
-        sub.append(strong, copy[1]);
-      }
+      sub.textContent = "";
+      const strong = document.createElement("strong");
+      strong.textContent = copy[0] + ". ";
+      sub.append(strong, copy[1]);
       document.title = copy[2];
     } else {
       sub.textContent = defaultSub;
