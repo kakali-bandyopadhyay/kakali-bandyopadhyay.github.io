@@ -110,3 +110,10 @@ main.cs-main figcaption{font-size:13px}
 main.cs-main .glance{margin:0 0 16px}
 main.cs-main .glance dd{font-size:14px}
 main.cs-main .note{font-size:13px}
+.feature-build.private-credit-build{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:22px}
+.private-credit-build>img{display:block;width:100%;max-width:520px;height:auto;max-height:none;margin:0 auto}
+.cs-chips span{white-space:nowrap}
+.table-scroll{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin:10px 0 18px;-webkit-overflow-scrolling:touch}
+.table-scroll table{min-width:680px;margin:0}
+.table-scroll th{position:sticky;top:0;background:var(--card)}
+@media(max-width:760px){.feature-build.private-credit-build{grid-template-columns:minmax(0,1fr)}}

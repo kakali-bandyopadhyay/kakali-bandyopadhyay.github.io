@@ -95,8 +95,8 @@ class PortfolioContentChecks(unittest.TestCase):
         self.assertIn('data-tracks="ai data"', HTML)
 
     def test_favicon_tags(self):
-        self.assertIn(('icon', 'assets/favicon-32x32.png'), PAGE.icon_tags)
-        self.assertIn(('apple-touch-icon', 'assets/apple-touch-icon.png'), PAGE.icon_tags)
+        self.assertIn(('icon', '/assets/favicon-32x32.png'), PAGE.icon_tags)
+        self.assertIn(('apple-touch-icon', '/assets/apple-touch-icon.png'), PAGE.icon_tags)
 
     def test_changed_card_links_preserved_and_repo_file_urls_absolute(self):
         deal_links = [
@@ -266,7 +266,8 @@ class MarginFinancingLabChecks(unittest.TestCase):
 
     def test_firm_term_scan_reuses_local_ignored_terms(self):
         terms = [t.strip() for t in (ROOT / "checks" / "scan-terms.local.txt").read_text(encoding="utf-8").splitlines() if t.strip()]
-        for document in (self.case, HTML):
+        private_credit = (ROOT / "case-studies" / "private-credit-allocation-engine.html").read_text(encoding="utf-8")
+        for document in (self.case, HTML, private_credit):
             for term in terms:
                 self.assertNotIn(term, document)
 
@@ -415,6 +416,82 @@ class VolForecastLabEventDrivenChecks(unittest.TestCase):
 
     def test_exactly_once_wording_is_absent(self):
         self.assertNotIn("exactly-once", self.case.lower())
+
+class PrivateCreditAllocationEngineChecks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.page_path = ROOT / "case-studies" / "private-credit-allocation-engine.html"
+        cls.page = cls.page_path.read_text(encoding="utf-8")
+        cls.source = ROOT.parent / "private-credit-allocation-engine"
+        cls.readme = (cls.source / "README.md").read_text(encoding="utf-8")
+
+    def test_page_exists_and_favicon_tags_match_index(self):
+        self.assertTrue(self.page_path.is_file())
+        index_icons = re.findall(r'<link rel="(?:icon|apple-touch-icon)"[^>]*>', HTML)
+        page_icons = re.findall(r'<link rel="(?:icon|apple-touch-icon)"[^>]*>', self.page)
+        self.assertEqual(page_icons, index_icons)
+        self.assertEqual(page_icons, [
+            '<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">',
+            '<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">',
+        ])
+
+    def test_stylesheet_version_matches_other_case_studies(self):
+        versions = {}
+        for page_path in (ROOT / "case-studies").glob("*.html"):
+            page = page_path.read_text(encoding="utf-8")
+            match = re.search(r'<link rel="stylesheet" href="\.\./assets/style\.css\?v=([^" ]+)">', page)
+            if match:
+                versions[page_path.name] = match.group(1)
+        self.assertIn(self.page_path.name, versions)
+        self.assertEqual(set(versions.values()), {"20261119p1"})
+
+    def test_github_links_exist_in_read_only_source_repo(self):
+        hrefs = re.findall(r'<a\b[^>]*\bhref="([^"]+)"', self.page)
+        github_hrefs = [href for href in hrefs if urlsplit(href).netloc == "github.com"]
+        self.assertTrue(github_hrefs)
+        for href in github_hrefs:
+            parts = [part for part in urlsplit(href).path.split("/") if part]
+            self.assertGreaterEqual(len(parts), 2, href)
+            self.assertEqual(parts[:2], ["kakali-bandyopadhyay", "private-credit-allocation-engine"], href)
+            relative = parts[4:] if len(parts) >= 4 and parts[2:4] == ["blob", "main"] else []
+            target = self.source.joinpath(*relative) if relative else self.source
+            self.assertTrue(target.exists(), f"{href} maps to missing {target}")
+
+    def test_no_relative_repo_file_links(self):
+        hrefs = re.findall(r'<a\b[^>]*\bhref="([^"]+)"', self.page)
+        for href in hrefs:
+            parsed = urlsplit(href)
+            if parsed.scheme or href.startswith(("/", "#")):
+                continue
+            self.assertFalse(re.match(r"(?:\.\.?/)?(?:docs|src|tests|data|queries)/", parsed.path), href)
+
+    def test_pill_title_and_hero_buttons(self):
+        self.assertIn('<span class="cs-pill">Case study · simulated scenario · synthetic data · worked example</span>', self.page)
+        self.assertIn('<h1>Can an allocation engine show an auditor why every fund got what it got?</h1>', self.page)
+        actions = re.search(r'<p class="cs-actions">(.*?)</p>', self.page, re.S).group(1)
+        buttons = re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', actions, re.S)
+        self.assertEqual([(re.sub(r"<[^>]+>", "", text).strip(), href) for href, text in buttons], [
+            ("Watch the walkthrough (2 min)", "https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine#walkthrough-2-min-synthetic-data"),
+            ("Code", "https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine"),
+            ("Findings", "https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/FINDINGS.md"),
+            ("Decision trace", "https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0008_D008.md"),
+        ])
+
+    def test_avoid_terms_absent_and_d008_table_numbers_are_sourced(self):
+        for term in ("personal prototype", "personal build", "hobby", "side project", "production-ready", "validated"):
+            self.assertNotIn(term, self.page.lower())
+        table = re.search(r'<h2 id="decision">.*?</h2>\s*<div class="table-scroll".*?</div>', self.page, re.S).group(0)
+        for number in re.findall(r"\d+(?:,\d{3})*(?:\.\d+)?%?", table):
+            self.assertIn(number, self.readme, f"D008 table number {number} is absent from README.md")
+
+    def test_portfolio_card_has_exactly_case_study_then_code_links(self):
+        card = re.search(r'<div class="card" data-tracks="private-markets operations">(.*?)</div>', HTML, re.S).group(1)
+        self.assertIn('<h3>Private-credit allocation engine</h3>', card)
+        links = re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', card, re.S)
+        self.assertEqual([(re.sub(r"<[^>]+>", "", text).strip(), href) for href, text in links], [
+            ("Case study", "https://kakali-bandyopadhyay.github.io/case-studies/private-credit-allocation-engine.html"),
+            ("Code", "https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine"),
+        ])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

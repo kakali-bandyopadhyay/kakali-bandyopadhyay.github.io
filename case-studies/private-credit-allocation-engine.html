@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private-credit allocation engine – case study | Kakali Bandyopadhyay</title>
+<meta name="description" content="A synthetic private-credit allocation case study showing how fund-level decisions, controls and audit evidence connect.">
+<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../assets/style.css?v=20261119p1">
+</head>
+<body>
+<header class="cs-hero">
+<div class="cs-hero-inner">
+<nav><a href="/?track=private-markets">← Portfolio</a></nav>
+<span class="cs-pill">Case study · simulated scenario · synthetic data · worked example</span>
+<h1>Can an allocation engine show an auditor why every fund got what it got?</h1>
+<p class="cs-lede">Six synthetic cases, 89 pytest tests, and a D008 debt case capped at 57.5 while F2 stays at 70.006% qualifying assets.</p>
+<div class="cs-chips"><span>Python</span><span>SQLite</span><span>pydantic</span><span>pytest</span><span>Maker-checker</span><span>Hash-chained audit log</span></div>
+<p class="cs-actions">
+  <a class="cs-btn primary" href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine#walkthrough-2-min-synthetic-data">Watch the walkthrough (2 min)</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine">Code</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/FINDINGS.md">Findings</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0008_D008.md">Decision trace</a>
+</p>
+</div>
+</header>
+
+<main class="cs-main">
+<h2 id="problem">The problem</h2>
+<div class="callout lead-problem">
+<p>One private-credit deal may need to be allocated across several funds and mandates, where every cap, exclusion and escalation must be explainable to a checker, Compliance and an auditor.</p>
+</div>
+
+<h2 id="what-it-does">What it does</h2>
+<p>Eligibility gates lead to limits, including pre-trade BDC headroom; sizing uses a documented key, minimum ticket and lots; co-investment conditions can escalate; a maker-checker approves; then the deal is booked, reconciled across three records and monitored through surveillance.</p>
+<p>Every step writes to a hash-chained audit log, and one command produces the evidence pack an auditor would ask for.</p>
+<figure style="margin:18px auto;max-width:560px">
+  <a href="../assets/img/private-credit-allocation-workflow.svg" target="_blank" rel="noopener"><img src="../assets/img/private-credit-allocation-workflow.svg" width="561" height="1422" alt="Operating workflow: deal team, maker, eligibility gates, limits, sizing, co-investment conditions, escalation to Compliance/CCO/board, checker approval, booking, reconciliation, independent review, all written to a hash-chained audit log" style="display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px"></a>
+  <figcaption style="font-size:13px;color:var(--mute);text-align:center;margin-top:6px">Operating workflow – who does what (click to open full size)</figcaption>
+</figure>
+
+<h2 id="decision">One decision, end to end (deal D008, fund F2)</h2>
+<div class="table-scroll" role="region" aria-label="D008 allocation decision trace" tabindex="0">
+<table>
+<thead><tr><th>Step</th><th>What happened</th></tr></thead>
+<tbody>
+<tr><td>Input</td><td>D008 Summit Logistics is a $300m first lien, rated BB; F2 has 82 of capital free and plans to fund the deal with debt.</td></tr>
+<tr><td>Rules</td><td>Eligibility gates pass. The issuer limit and pre-trade BDC check set the binding limits under stated assumptions.</td></tr>
+<tr><td>Calculation</td><td>Capacity = min(free capital 82, issuer room 125) = 82. The debt case allows 57.71, rounded down to 57.5; the cash case allows 40.0. A 60.07 key share is capped at 57.5 and the 2.5 excess is re-split.</td></tr>
+<tr><td>Outcome</td><td>F2 receives 57.5 and stays at 70.006% qualifying assets; at 60 it would be 69.94%. Critical exception E0009 goes to the CCO / board.</td></tr>
+<tr><td>Human action</td><td>A checker other than the maker approves with a recorded rationale; unknown funding cannot be cleared by rationale.</td></tr>
+<tr><td>Audit evidence</td><td>RUN_CREATED → SUBMITTED → APPROVED → BOOKED → RECONCILED; each entry is hash-chained, booked 57.5 equals ledger 57.5, and the chain verifies.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0008_D008.md">Full trace for D008 and F2</a></p>
+
+<h2 id="runs">What the runs show</h2>
+<div class="table-scroll" role="region" aria-label="Six synthetic case findings" tabindex="0">
+<table>
+<thead><tr><th>Case</th><th>Deal</th><th>What was tested</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>D003 Atlas ($400m)</td><td>Concentration and existing-investment condition</td><td>F1:F2 rebalanced to 72:28; board-step exceptions cleared; a $0.5m ledger break was caught and resolved.</td></tr>
+<tr><td>2</td><td>D009 Crescent ($220m)</td><td>Restricted issuer for one mandate</td><td>F5 excluded; the other five funds allocated; zero reconciliation breaks.</td></tr>
+<tr><td>3</td><td>D007 Bluebell ($110m)</td><td>Missing rating and sourced correction</td><td>Run blocked, then corrected with a reason and owner; approved, booked and reconciled with zero breaks.</td></tr>
+<tr><td>4</td><td>D008 Summit ($300m)</td><td>Funding-aware BDC pre-trade cap</td><td>F2 capped at 57.5 and stays at 70.006%; cash limit 40.0; the earlier 60 allocation reached 69.94%.</td></tr>
+<tr><td>5</td><td>D010 Meridian ($75m)</td><td>Follow-the-sun handover with a pending reservation</td><td>$58.5m under-subscribed, raised as a Medium exception.</td></tr>
+<tr><td>6</td><td>D013 Orion ($120m)</td><td>Concurrent reservations and unknown funding</td><td>F2 has zero permitted headroom; F1’s unknown funding raises a High exception to Compliance and approval stays on hold until funding is confirmed.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="design">Design choices</h2>
+<div class="approach-cards" aria-label="Allocation control design choices">
+  <article class="p-card approach-card"><span class="p-num">One rule, one decision</span><p>A gate excludes, a limit caps, a condition escalates, and a person decides.</p></article>
+  <article class="p-card amber approach-card"><span class="p-num">Funding-aware BDC check</span><p>Pre-trade headroom follows the deal funding plan and stated balance-sheet assumptions.</p></article>
+  <article class="p-card approach-card"><span class="p-num">Reservations follow live runs</span><p>Capital and headroom held by pending runs cannot be reused by another run.</p></article>
+  <article class="p-card approach-card"><span class="p-num">Corrections leave a record</span><p>Source-backed corrections are logged with a reason; input data is never silently edited.</p></article>
+  <article class="p-card approach-card"><span class="p-num">Maker-checker separation</span><p>The person who creates a run cannot approve that run.</p></article>
+</div>
+
+<h2 id="checks">Checks and limits</h2>
+<p>The README reports 89 pytest tests; the findings explain that each reported figure is printed by the demo and asserted in report tests. BDC checks are a model under stated assumptions, policies are illustrative, and Legal/Compliance would need to review the classification and calculation basis before real use. This is not a production system.</p>
+
+<h2 id="evidence">Evidence</h2>
+<p><a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine#walkthrough-2-min-synthetic-data">Walkthrough</a> · <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/FINDINGS.md">Findings</a> · <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/DECISION_PATH.md">Decision path</a> · <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/RUNBOOK.md">Runbook</a></p>
+<p>Sample traces: <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0005_D009_F5.md">D009 exclusion</a> · <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0008_D008.md">D008 allocation</a> · <a href="https://github.com/kakali-bandyopadhyay/private-credit-allocation-engine/blob/main/docs/samples/trace_R0009_D013.md">D013 hard stop</a>.</p>
+
+<p class="note">Synthetic case study. All data is synthetic and all policies are illustrative, modelled on public information. Not based on, or connected to, any firm's systems, data or processes.</p>
+<footer>Private markets · <a href="/?track=private-markets">Portfolio</a></footer>
+</main>
+</body>
+</html>
