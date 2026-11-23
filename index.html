@@ -148,7 +148,7 @@
       <h3>Margin and financing lab: where should each position sit?</h3>
       <p><strong>Problem</strong> A multi-PM book faces different prime-broker rates, offsets, borrow and limits, so allocation changes both financing cost and margin locked up.</p>
       <p><strong>What it does</strong> Uses a pre-registered margin proxy and a linear program to allocate positions across synthetic prime brokers, then attributes margin usage and an illustrative charge to PMs.</p>
-      <p><strong>Evidence</strong> 214 positions across 4 prime brokers; 90-day cost USD 21,714,337; 49 positions split across brokers. A pre-registered 7-scenario stress test shows the book absorbs a doubling of volatility within broker limits (+USD 155m margin), while a 1.5× margin-rate shock or the loss of one broker breaches counterparty limits; the combined stress adds USD 479m margin. 3 of 5 expected behaviours met; the results and limitations are published.</p>
+      <p><strong>Evidence</strong> 214 positions across 4 prime brokers; 90-day cost USD 21,714,337; 49 positions split across brokers. A pre-registered 7-scenario stress test shows the book absorbs a doubling of volatility within broker limits (+USD 155m margin), while a 1.5× margin-rate shock or the loss of one broker breaches counterparty limits; the combined stress adds USD 479m margin. 3 of 5 expected behaviours met; the results and limitations are published. The margin rates are then calibrated to illustrative public-market proxies (ES 97.5%, point-in-time stressed weighting with a floor) and backtested walk-forward at every month-end from January 2019 to September 2026; every output reproduces byte-identical from a clean clone.</p>
       <p class="links">
         <a href="case-studies/margin-and-financing-lab.html">Case study</a>
         <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md">Model document</a>
@@ -316,7 +316,7 @@
   <div class="card" data-tracks="quant data" data-featured-track="quant">
     <span class="tag">Quant research</span><span class="tag">Optimisation</span><span class="tag">Treasury</span><span class="tag">Synthetic data</span>
     <h3>Margin and financing lab</h3>
-    <p>Allocates a synthetic multi-PM book across prime brokers at minimum financing and margin cost, then attributes margin to PMs – pre-registered, with a validation-style model document.</p>
+    <p>Allocates a synthetic multi-PM book across prime brokers at minimum financing and margin cost, then attributes margin to PMs – pre-registered, stress-tested and calibrated to public-market proxies, with a validation-style model document.</p>
     <p class="links">
       <a href="/case-studies/margin-and-financing-lab.html">Case study</a>
       <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md">Model document</a>

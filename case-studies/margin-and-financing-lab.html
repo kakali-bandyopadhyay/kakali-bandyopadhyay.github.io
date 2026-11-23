@@ -28,10 +28,10 @@
 <header class="cs-hero">
 <div class="cs-hero-inner">
 <nav><a href="/?track=quant">← Portfolio</a></nav>
-<span class="cs-pill">Case study · pre-registered model · synthetic data · worked example</span>
+<span class="cs-pill">Case study · pre-registered model · synthetic book · public-market calibration · worked example</span>
 <h1>Where should each position sit across prime brokers – and who should pay for the margin?</h1>
 <p class="cs-lede">214 positions placed across 4 prime brokers at a 90-day cost of USD 21,714,337 – 49 positions split across brokers, one counterparty limit and 48 borrow limits binding.</p>
-<div class="cs-chips"><span>Pre-registered</span><span>Margin proxy</span><span>LP (cvxpy + HiGHS)</span><span>DuckDB SQL</span><span>Leave-one-out attribution</span><span>Model document</span><span>CI</span></div>
+<div class="cs-chips"><span>Pre-registered</span><span>Margin proxy</span><span>LP (cvxpy + HiGHS)</span><span>DuckDB SQL</span><span>Leave-one-out attribution</span><span>Liquidity stress test</span><span>Calibration (ES 97.5%)</span></div>
 <p class="cs-actions">
   <a class="cs-btn primary" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md">Read the model document</a>
   <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md">Results</a>
@@ -62,7 +62,7 @@
 </div>
 
 <nav class="toc" aria-label="Sections">
-  <a href="#problem">The problem</a><a href="#approach">The approach</a><a href="#design">The question and the design</a><a href="#results">Results</a><a href="#model">How the model fits together</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
+  <a href="#problem">The problem</a><a href="#approach">The approach</a><a href="#design">The question and the design</a><a href="#results">Results</a><a href="#stress">Stress-testing the book</a><a href="#calibration">Calibrating the rates to public market data</a><a href="#model">How the model fits together</a><a href="#checks">How every number is checked</a><a href="#limits">What it does not claim</a>
 </nav>
 
 <h2 id="design">1. The question and the design</h2>
@@ -101,14 +101,71 @@
 </div>
 <p><a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md">Full results and exhibits</a></p>
 
-<h2 id="model">3. How the model fits together</h2>
+<h2 id="stress">3. Stress-testing the book</h2>
+<p>Seven pre-registered scenarios re-run the same optimiser on the same book. The base case reproduces Phase 1 to the cent.</p>
+<div class="table-scroll" role="region" aria-label="Phase 2a stress results" tabindex="0">
+<table>
+<thead><tr><th>Scenario</th><th>Δ total margin (USD)</th><th>Status</th><th>Binding block</th></tr></thead>
+<tbody>
+<tr><td>ST0 base</td><td>0.00</td><td>optimal</td><td>—</td></tr>
+<tr><td>ST1a vol ×2</td><td>155,492,954.66</td><td>optimal</td><td>—</td></tr>
+<tr><td>ST1b vol ×1.5</td><td>140,594,913.93</td><td>optimal</td><td>—</td></tr>
+<tr><td>ST2a margin rate ×1.5, all PBs</td><td>842,034,911.67</td><td>infeasible</td><td>Counterparty</td></tr>
+<tr><td>ST2b margin rate ×1.5, PB_D + PB_A</td><td>519,152,546.17</td><td>infeasible</td><td>Counterparty</td></tr>
+<tr><td>ST3 PB_D termination</td><td>46,939,714.20</td><td>infeasible</td><td>Counterparty · borrow</td></tr>
+<tr><td>ST4 combined</td><td>478,719,249.80</td><td>infeasible</td><td>Counterparty · borrow</td></tr>
+</tbody>
+</table>
+</div>
+<p>Doubling volatility is absorbed within broker limits (+USD 155,492,954.66 margin). A 1.5× margin-rate shock or the loss of one broker breaches counterparty limits; the termination cases also breach borrow limits. The allocation shown for infeasible cases is the minimum-slack allocation.</p>
+<p>3 of 5 pre-registered expectations met (E-S1, E-S3, E-S5); E-S2 and E-S4 reported as found.</p>
+<p>The additional funding requirement is not a cash amount; counterparty slack is margin above the counterparty limits and is already included in total margin.</p>
+
+<h2 id="calibration">4. Calibrating the rates to public market data</h2>
+<p>Each of seven product types maps to an illustrative public-market proxy. The target uses two-sided expected shortfall at 97.5% on overlapping returns over an assumed margin period of risk; a point-in-time stressed component—the worst 250-observation window ending by the estimation date—is blended at 25% with a floor at recent ES. One scaling factor per product type is applied to Phase 1 rates, preserving every broker, product and liquidity-tier relativity.</p>
+<dl class="glance" aria-label="Calibration at a glance">
+  <div class="p-card"><dt>Coverage</dt><dd><span class="p-num">7 product types · 5 public series</span></dd></div>
+  <div class="p-card"><dt>Backtest:</dt><dd><span class="p-num">every row in the green zone</span></dd></div>
+  <div class="p-card"><dt>ZN comparison</dt><dd><span class="p-num">0.662–1.073× exchange initial margin</span></dd></div>
+  <div class="p-card"><dt>Reproduction</dt><dd><span class="p-num">Byte-identical from a clean clone</span></dd></div>
+</dl>
+<div class="table-scroll" role="region" aria-label="Phase 2b calibration targets" tabindex="0">
+<table>
+<thead><tr><th>Product type</th><th>Proxy</th><th>h</th><th>ES recent</th><th>ES stress</th><th>Stressed window end</th><th>T</th><th>k_t</th></tr></thead>
+<tbody>
+<tr><td>cash_equity</td><td>SPY</td><td>10</td><td>0.078283</td><td>0.222669</td><td>2020-03-23</td><td>0.114380</td><td>0.504218</td></tr>
+<tr><td>cds_proxy</td><td>HYG</td><td>5</td><td>0.017473</td><td>0.096872</td><td>2020-03-23</td><td>0.037323</td><td>0.563725</td></tr>
+<tr><td>commodity_future</td><td>GLD</td><td>2</td><td>0.065027</td><td>0.083053</td><td>2026-06-10</td><td>0.069534</td><td>0.434989</td></tr>
+<tr><td>equity_swap</td><td>SPY</td><td>10</td><td>0.078283</td><td>0.222669</td><td>2020-03-23</td><td>0.114380</td><td>0.572883</td></tr>
+<tr><td>fx_forward</td><td>DEXUSEU</td><td>10</td><td>0.043681</td><td>0.057416</td><td>2016-01-14</td><td>0.047115</td><td>1.380636</td></tr>
+<tr><td>govt_bond</td><td>DGS10</td><td>10</td><td>0.028551</td><td>0.050620</td><td>2020-04-01</td><td>0.034068</td><td>1.618377</td></tr>
+<tr><td>irs_proxy_future</td><td>DGS10</td><td>2</td><td>0.013452</td><td>0.022585</td><td>2023-02-06</td><td>0.015735</td><td>0.450254</td></tr>
+</tbody>
+</table>
+</div>
+<p>The walk-forward backtest uses every month-end from January 2019 to September 2026, non-overlapping test windows, and separate long and short sides. The stressed component lowers worse-side exceedances strictly for 5 of 7 types (4 of 6 distinct proxy/horizon pairs, because cash equity and equity swaps share a proxy). With 173–175 non-overlapping windows for h = 10, zero exceedances gives Kupiec p ≈ 0.06: at these sample sizes the test has little power to reject a conservative target, and every zone is green.</p>
+<div class="table-scroll" role="region" aria-label="Calibration expectations" tabindex="0">
+<table>
+<thead><tr><th>Expectation</th><th>Result</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>E-C1</td><td>Met</td><td>Stressed ES exceeds recent ES on every target row; the floor is non-binding.</td></tr>
+<tr><td>E-C2</td><td>Met</td><td>MPOR target increases; ES 97.5 is at least VaR 99; scaling gaps are 5.00% and 4.52%.</td></tr>
+<tr><td>E-C3</td><td>Met</td><td>5 of 7 types; 4 of 6 distinct proxy/horizon pairs.</td></tr>
+<tr><td>E-C4</td><td>Not met – no PM changes rank</td><td></td></tr>
+<tr><td>E-C5</td><td>Met</td><td>All ratios are within 0.5–3; observed range 0.662–1.073.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md">Full calibration results</a></p>
+
+<h2 id="model">5. How the model fits together</h2>
 <figure class="overview-figure">
   <img src="../assets/img/margin-and-financing-lab-flow.svg" width="306" height="416" alt="Synthetic book and broker terms flow through a margin proxy, cost-minimising allocation and PM attribution into a report and model document">
   <figcaption>Model and reporting flow</figcaption>
 </figure>
 <p><a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/diagrams/module_flow.svg">Module diagram (full)</a></p>
 
-<h2 id="checks">4. How every number is checked</h2>
+<h2 id="checks">6. How every number is checked</h2>
 <div class="table-scroll" role="region" aria-label="Acceptance and exhibit checks" tabindex="0">
 <table>
 <thead><tr><th>Test</th><th>What it proves</th></tr></thead>
@@ -118,23 +175,26 @@
 <tr><td>A3–A4</td><td>The stated offset rule reduces margin, and positions at different PBs do not net.</td></tr>
 <tr><td>A5</td><td>Constraint checks, infeasibility diagnosis and epigraph agreement.</td></tr>
 <tr><td>A6</td><td>Usage totals and ordering, empty cases and invalid-rate rejection.</td></tr>
-<tr><td>A7</td><td>One matched-product exchange margin falls inside the pre-set sanity band; this is not calibration.</td></tr>
+<tr><td>A7</td><td>Exchange sanity band (sanity only – Phase 2b calibration is separate).</td></tr>
 <tr><td>A8</td><td>Required validation disclosure and heading sequence.</td></tr>
 <tr><td>X1–X3</td><td>Re-solve, all-in cost and Euler range exhibits.</td></tr>
+<tr><td>Stress tests (Phase 2a)</td><td>base case reproduces Phase 1 to the cent; scenario outputs reproduce.</td></tr>
+<tr><td>C1–C13 (Phase 2b)</td><td>ES/VaR rule, overlapping returns, floored target, mapping round-trip, relativities, point-in-time, backtest windows, traffic light, input digest.</td></tr>
 </tbody>
 </table>
 </div>
 <p>Changes from the pre-registration are recorded in <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/prereg/DEVIATIONS.md">the deviations log</a>. Regenerate the outputs with <code>python -m mfl.cli run --seed 42 --out reports/local</code>.</p>
 
-<h2 id="limits">5. What it does not claim</h2>
+<h2 id="limits">7. What it does not claim</h2>
 <ul>
-  <li>This is not a portfolio-margin model and it is not calibrated to any broker.</li>
+  <li>rates are calibrated to illustrative public-market proxies – not to any broker, exchange or clearing house; proxies are not instrument-matched (index for single names, gold for other commodities, one 10-year duration for all rates products).</li>
+  <li>stress is static – no margin-call or path dynamics; slack is not a cash amount.</li>
   <li>The book and broker terms are synthetic; the charge is illustrative.</li>
   <li>The model is not validated. See <a href="https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md#12-validation-status">MODEL_DOC.md §12</a>.</li>
   <li>The proxy uses limited per-broker family offsets and does not represent a broker's actual methodology.</li>
 </ul>
 
-<p class="note">Synthetic data generated for this study; the only public input is one exchange margin figure used as a sanity check. Illustrative model – not validated, not any firm's methodology.</p>
+<p class="note">Synthetic book and broker terms; public market series are used only to calibrate rate levels and as an exchange sanity check. Illustrative model – not validated, not any firm's methodology.</p>
 <footer>Quant research · <a href="/?track=quant">Portfolio</a></footer>
 </main>
 </body>

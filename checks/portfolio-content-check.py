@@ -1,3 +1,4 @@
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 import re
@@ -212,13 +213,33 @@ class MarginFinancingLabChecks(unittest.TestCase):
         cls.results = (cls.lab / "RESULTS.md").read_text(encoding="utf-8")
         cls.model = (cls.lab / "docs" / "MODEL_DOC.md").read_text(encoding="utf-8")
         cls.sources = (cls.lab / "data" / "SOURCES.md").read_text(encoding="utf-8")
-        cls.source_text = "\n".join((cls.results, cls.model, cls.sources))
+        cls.prereg = (cls.lab / "prereg" / "PREREGISTRATION_PHASE2B.md").read_text(encoding="utf-8")
+        cls.source_documents = {
+            "RESULTS.md": cls.results,
+            "MODEL_DOC.md": cls.model,
+            "SOURCES.md": cls.sources,
+            "PREREGISTRATION_PHASE2B.md": cls.prereg,
+        }
+        cls.source_text = "\n".join(cls.source_documents.values())
 
     def test_case_sections_and_numbering(self):
         self.assertTrue(self.case_path.is_file())
         headings = re.findall(r'<h2 id="([^"]+)">(.*?)</h2>', self.case, re.S)
-        self.assertEqual([item[0] for item in headings], ["problem", "approach", "design", "results", "model", "checks", "limits"])
-        self.assertEqual([re.sub(r"<[^>]+>", "", item[1]).split(". ", 1)[0] for item in headings[2:]], ["1", "2", "3", "4", "5"])
+        expected_ids = ["problem", "approach", "design", "results", "stress", "calibration", "model", "checks", "limits"]
+        self.assertEqual([item[0] for item in headings], expected_ids)
+        numbered = [re.sub(r"<[^>]+>", "", item[1]).strip() for item in headings[2:]]
+        self.assertEqual([re.match(r"^(\d+)\.", text).group(1) for text in numbered], [str(n) for n in range(1, 8)])
+        toc = re.search(r'<nav class="toc".*?</nav>', self.case, re.S).group(0)
+        toc_items = [(href, re.sub(r"<[^>]+>", "", label).strip()) for href, label in re.findall(r'<a href="([^"]+)">(.*?)</a>', toc, re.S)]
+        self.assertEqual(toc_items, [
+            ("#problem", "The problem"), ("#approach", "The approach"),
+            ("#design", "The question and the design"), ("#results", "Results"),
+            ("#stress", "Stress-testing the book"),
+            ("#calibration", "Calibrating the rates to public market data"),
+            ("#model", "How the model fits together"),
+            ("#checks", "How every number is checked"),
+            ("#limits", "What it does not claim"),
+        ])
 
     def test_case_favicons_and_versioned_stylesheet(self):
         self.assertEqual(self.case.count('<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">'), 1)
@@ -256,13 +277,138 @@ class MarginFinancingLabChecks(unittest.TestCase):
 
     def test_result_hero_and_glance_numbers_have_provenance(self):
         result_start = self.case.index('<h2 id="results">')
-        result_end = self.case.index('<h2 id="model">', result_start)
+        result_end = self.case.index('<h2 id="stress">', result_start)
         result_section = self.case[result_start:result_end]
         hero = re.search(r'<p class="cs-lede">(.*?)</p>', self.case, re.S).group(1)
         glance = re.search(r'<dl class="glance".*?</dl>', self.case, re.S).group(0)
         for region in (result_section, hero, glance):
             for number in re.findall(r"\d+(?:,\d{3})*(?:\.\d+)?%?", region):
                 self.assertIn(number, self.source_text, number)
+
+    def test_stress_and_calibration_number_tokens_have_source_provenance(self):
+        number_token = re.compile(r"(?<![\w,])\b\d+(?:,\d{3})*(?:\.\d+)?%?(?![\w,])")
+        self.assertEqual(number_token.findall("250,620.19"), ["250,620.19"])
+        source_tokens = {
+            name: {token.removesuffix("%") for token in number_token.findall(text)}
+            for name, text in self.source_documents.items()
+        }
+        all_source_tokens = set().union(*source_tokens.values())
+        for section_id, next_id in (("stress", "calibration"), ("calibration", "model")):
+            start = self.case.index(f'<h2 id="{section_id}">')
+            end = self.case.index(f'<h2 id="{next_id}">', start)
+            section = self.case[start:end]
+            visible = unescape(re.sub(r"<[^>]+>", " ", section))
+            for number in number_token.findall(visible):
+                # Match complete numeric tokens, so 250 cannot match inside 250,620.19.
+                self.assertIn(number.removesuffix("%"), all_source_tokens, f"{section_id}: {number}")
+            self.assertIn('class="table-scroll"', section)
+
+    def test_stress_rows_and_wording(self):
+        section = self.case[self.case.index('<h2 id="stress">'):self.case.index('<h2 id="calibration">')]
+        table = re.search(r'<div class="table-scroll".*?</div>', section, re.S).group(0)
+        rows = re.findall(r'<tr><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td></tr>', table)
+        self.assertEqual([row[0] for row in rows], [
+            "ST0 base", "ST1a vol ×2", "ST1b vol ×1.5", "ST2a margin rate ×1.5, all PBs",
+            "ST2b margin rate ×1.5, PB_D + PB_A", "ST3 PB_D termination", "ST4 combined",
+        ])
+        self.assertEqual([row[2] for row in rows], ["optimal", "optimal", "optimal", "infeasible", "infeasible", "infeasible", "infeasible"])
+        self.assertIn("3 of 5 pre-registered expectations met (E-S1, E-S3, E-S5); E-S2 and E-S4 reported as found.", section)
+        self.assertIn("The allocation shown for infeasible cases is the minimum-slack allocation.", section)
+        self.assertIn("The additional funding requirement is not a cash amount", section)
+
+    def test_calibration_display_and_expectations(self):
+        section = self.case[self.case.index('<h2 id="calibration">'):self.case.index('<h2 id="model">')]
+        self.assertIn("7 product types · 5 public series", section)
+        self.assertIn("<dt>Backtest:</dt><dd><span class=\"p-num\">every row in the green zone</span>", section)
+        self.assertIn("0.662–1.073× exchange initial margin", section)
+        self.assertIn("Byte-identical from a clean clone", section)
+        self.assertIn("every month-end from January 2019 to September 2026", section)
+        self.assertIn("4 of 6 distinct proxy/horizon pairs", section)
+        self.assertIn("With 173–175 non-overlapping windows for h = 10, zero exceedances gives Kupiec p ≈ 0.06: at these sample sizes the test has little power to reject a conservative target, and every zone is green.", section)
+        target_table = re.search(r'<div class="table-scroll".*?</div>', section, re.S).group(0)
+        self.assertEqual(len(re.findall(r'<tr><td>', target_table)), 7)
+        self.assertIn("href=\"https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md\">Full calibration results</a>", section)
+        expectation_table = re.findall(r'<div class="table-scroll".*?</div>', section, re.S)[1]
+        expectation_rows = re.findall(r'<tr><td>(E-C\d)</td><td>(.*?)</td><td>(.*?)</td></tr>', expectation_table)
+        self.assertEqual([row[0] for row in expectation_rows], ["E-C1", "E-C2", "E-C3", "E-C4", "E-C5"])
+        self.assertEqual(expectation_rows[3][1], "Not met – no PM changes rank")
+        self.assertEqual(expectation_rows[3][2], "")
+
+    def test_existing_checks_limits_note_and_prohibited_claims(self):
+        checks = self.case[self.case.index('<h2 id="checks">'):self.case.index('<h2 id="limits">')]
+        self.assertIn("Exchange sanity band (sanity only – Phase 2b calibration is separate)", checks)
+        self.assertIn("Stress tests (Phase 2a)", checks)
+        self.assertIn("base case reproduces Phase 1 to the cent; scenario outputs reproduce", checks)
+        self.assertIn("C1–C13 (Phase 2b)", checks)
+        self.assertIn("ES/VaR rule, overlapping returns, floored target, mapping round-trip, relativities, point-in-time, backtest windows, traffic light, input digest", checks)
+
+        limits = self.case[self.case.index('<h2 id="limits">'):]
+        self.assertIn("rates are calibrated to illustrative public-market proxies – not to any broker, exchange or clearing house; proxies are not instrument-matched (index for single names, gold for other commodities, one 10-year duration for all rates products)", limits)
+        self.assertIn("stress is static – no margin-call or path dynamics; slack is not a cash amount", limits)
+        note = re.search(r'<p class="note">(.*?)</p>', self.case, re.S).group(1)
+        self.assertEqual(note, "Synthetic book and broker terms; public market series are used only to calibrate rate levels and as an exchange sanity check. Illustrative model – not validated, not any firm's methodology.")
+
+        visible = unescape(re.sub(r"<[^>]+>", " ", self.case))
+        self.assertNotIn("the only public input", visible.lower())
+        self.assertNotIn("803", visible)
+        for match in re.finditer(r"\bvalidated\b", visible, re.I):
+            self.assertTrue(visible[max(0, match.start() - 4):match.start()].lower().endswith("not "), match.group(0))
+
+    def test_hero_pill_chips_and_size_rules(self):
+        self.assertIn('<span class="cs-pill">Case study · pre-registered model · synthetic book · public-market calibration · worked example</span>', self.case)
+        chip_block = re.search(r'<div class="cs-chips">(.*?)</div>', self.case, re.S).group(1)
+        chips = re.findall(r'<span>(.*?)</span>', chip_block)
+        self.assertEqual(chips, [
+            "Pre-registered", "Margin proxy", "LP (cvxpy + HiGHS)", "DuckDB SQL",
+            "Leave-one-out attribution", "Liquidity stress test", "Calibration (ES 97.5%)",
+        ])
+        css = (ROOT / "assets" / "style.css").read_text(encoding="utf-8")
+        self.assertRegex(css, r"\.cs-hero h1\{[^}]*font-size:28px")
+        self.assertRegex(css, r"@media\s*\(max-width:640px\)\{\.cs-hero h1\{[^}]*font-size:23px")
+        self.assertRegex(css, r"main\.cs-main\{[^}]*font-size:15px")
+        self.assertRegex(css, r"main\.cs-main h2\{[^}]*font-size:19px")
+        self.assertIn("font-size:18px", self.case)
+        self.assertIn("white-space:nowrap", self.case)
+        self.assertIn("overflow-x:auto", self.case)
+
+    def test_favicon_tags_and_repo_links_resolve(self):
+        self.assertIn('<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">', self.case)
+        self.assertIn('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">', self.case)
+        documents = (self.case, HTML)
+        for document in documents:
+            urls = re.findall(r'https://github\.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/([^"?#]+)', document)
+            for relative in urls:
+                self.assertTrue((self.lab / Path(*relative.split("/"))).is_file(), relative)
+            hrefs = re.findall(r'<a\b[^>]*\bhref="([^"]+)"', document)
+            self.assertFalse(any("reports/" in href for href in hrefs))
+
+    def test_firm_term_scan_reuses_local_ignored_terms(self):
+        terms = [t.strip() for t in (ROOT / "checks" / "scan-terms.local.txt").read_text(encoding="utf-8").splitlines() if t.strip()]
+        private_credit = (ROOT / "case-studies" / "private-credit-allocation-engine.html").read_text(encoding="utf-8")
+        for document in (self.case, HTML, private_credit):
+            for term in terms:
+                self.assertNotIn(term, document)
+
+    def test_quant_card_and_feature_panel(self):
+        grid_prefix = '<div class="card" data-tracks="quant data" data-featured-track="quant">'
+        panel_prefix = '<div class="feature-panel" data-feature-panel="quant" hidden>'
+        self.assertEqual(HTML.count(grid_prefix), 1)
+        self.assertEqual(HTML.count(panel_prefix), 1)
+        card = re.search(re.escape(grid_prefix) + r'(.*?)</div>', HTML, re.S).group(1)
+        self.assertIn('<p>Allocates a synthetic multi-PM book across prime brokers at minimum financing and margin cost, then attributes margin to PMs – pre-registered, stress-tested and calibrated to public-market proxies, with a validation-style model document.</p>', card)
+        expected_tags = ["Quant research", "Optimisation", "Treasury", "Synthetic data"]
+        self.assertEqual(re.findall(r'<span class="tag">(.*?)</span>', card), expected_tags)
+        self.assertEqual(re.findall(r'<a\b[^>]*href="([^"]+)"', card), [
+            "/case-studies/margin-and-financing-lab.html",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/docs/MODEL_DOC.md",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab/blob/main/RESULTS.md",
+            "https://github.com/kakali-bandyopadhyay/margin-and-financing-lab",
+        ])
+        panel = re.search(re.escape(panel_prefix) + r'(.*?)</div>\s*</div>\s*</div>', HTML, re.S).group(1)
+        evidence = re.search(r'<p><strong>Evidence</strong>(.*?)</p>', panel, re.S).group(1)
+        self.assertTrue(evidence.endswith(" The margin rates are then calibrated to illustrative public-market proxies (ES 97.5%, point-in-time stressed weighting with a floor) and backtested walk-forward at every month-end from January 2019 to September 2026; every output reproduces byte-identical from a clean clone."))
+        self.assertIn('src="assets/img/margin-and-financing-lab-thumb.svg"', panel)
+        self.assertTrue((ROOT / "assets" / "img" / "margin-and-financing-lab-thumb.svg").is_file())
 
     def test_firm_term_scan_reuses_local_ignored_terms(self):
         terms = [t.strip() for t in (ROOT / "checks" / "scan-terms.local.txt").read_text(encoding="utf-8").splitlines() if t.strip()]
