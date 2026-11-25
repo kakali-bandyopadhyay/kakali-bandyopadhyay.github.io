@@ -589,7 +589,12 @@ class PrivateCreditAllocationEngineChecks(unittest.TestCase):
             if match:
                 versions[page_path.name] = match.group(1)
         self.assertIn(self.page_path.name, versions)
-        self.assertEqual(set(versions.values()), {"20261119p1"})
+        self.assertEqual(versions[self.page_path.name], "20261119p1")
+        self.assertEqual(versions["txb-readiness-workbench.html"], "20261125t1")
+        self.assertEqual(
+            {version for name, version in versions.items() if name != "txb-readiness-workbench.html"},
+            {"20261119p1"},
+        )
 
     def test_github_links_exist_in_read_only_source_repo(self):
         hrefs = re.findall(r'<a\b[^>]*\bhref="([^"]+)"', self.page)

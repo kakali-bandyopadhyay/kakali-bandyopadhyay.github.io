@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fifty writers, one row: concurrency and JFR case study</title>
+<meta name="description" content="Synthetic data, laptop benchmark: a lost-update race, locking trade-offs and a JFR-led authentication fix.">
+<link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../assets/style.css?v=20261125t1">
+</head>
+<body>
+<header class="cs-hero">
+<div class="cs-hero-inner">
+<nav><a href="../?track=operations">← Portfolio</a></nav>
+<span class="cs-pill">Case study · synthetic data · laptop benchmark · Java 25 / Spring Boot 4.1.2</span>
+<h1>Fifty writers, one row: does every update survive – and where did the CPU go?</h1>
+<p class="cs-lede">Lost-update race reproduced (5 of 50 updates survived) and fixed to 0 lost · JFR traced 99.5% of CPU samples to password hashing · throughput 38.6 → 399.4 req/s, p95 1,545 → 264.8 ms (median of 3 runs).</p>
+<div class="cs-chips"><span>Java 25</span><span>Spring Boot 4.1.2</span><span>PostgreSQL 17.6</span><span>JPA @Version</span><span>SELECT … FOR UPDATE</span><span>JFR</span><span>HikariCP</span><span>Testcontainers</span></div>
+<p class="cs-actions">
+  <a class="cs-btn primary" href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/FINDINGS.md">Findings</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench">Code</a>
+  <a class="cs-btn" href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/docs/adr/ADR-001-readiness-action-locking.md">ADR-001</a>
+</p>
+</div>
+</header>
+<main class="cs-main">
+<div class="callout lead-problem">
+<p><strong>Fifty requests update the same readiness action at once.</strong> Without a concurrency control, 45 of the 50 changes disappear silently. After that is fixed, the app still serves under 40 requests a second, and the database is not the reason.</p>
+<div class="pressures">
+  <div class="p-card"><span class="p-num">5 / 50</span><span class="p-lbl">Updates that survived</span></div>
+  <div class="p-card"><span class="p-num">99.5%</span><span class="p-lbl">CPU samples in password hashing</span></div>
+  <div class="p-card amber"><span class="p-num">38.6 req/s</span><span class="p-lbl">Throughput before</span></div>
+  <div class="p-card" style="border-top-color:var(--ok)"><span class="p-num" style="color:var(--ok)">0</span><span class="p-lbl">Lost updates after the fix</span></div>
+</div>
+</div>
+
+<dl class="glance">
+  <div><dt>Stack</dt><dd>Java 25, Spring Boot 4.1.2, PostgreSQL 17.6</dd></div>
+  <div><dt>Dataset</dt><dd>One synthetic row per benchmark</dd></div>
+  <div class="k-ok"><dt>Tests</dt><dd>71 tests, <code>mvn verify</code>, per FINDINGS</dd></div>
+  <div><dt>Environment</dt><dd>i7-1165G7, 16 GB, Temurin 25.0.4.1</dd></div>
+</dl>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#locking">Locking</a><a href="#jfr">JFR</a><a href="#threads">Virtual threads</a><a href="#next">Next</a>
+</nav>
+
+<h2 id="locking">1. The lost update and two fixes</h2>
+<p>With <code>@Version</code> removed, 50 concurrent writers used the plain read-modify-write path; only 5 of 50 updates survived. The optimistic fix uses JPA <code>@Version</code>, five total attempts and exponential jitter with caps of 2, 4, 8 and 16 ms; exhausted API writes return HTTP 409. The comparison path uses <code>SELECT … FOR UPDATE</code> through <code>PESSIMISTIC_WRITE</code>.</p>
+<figure><img src="../assets/img/txb-optimistic-lock.svg" alt="Optimistic version check, retry gate and database update flow"><figcaption>Optimistic locking and bounded retry flow</figcaption></figure>
+<div class="table-scroll"><table>
+<thead><tr><th>Variant</th><th>Outcome</th><th>Lost updates</th><th>Failed callers</th></tr></thead>
+<tbody>
+<tr><td>No locking (red baseline, 1 run)</td><td>final <code>update_count</code> 5/50</td><td>45</td><td>0 (silent loss)</td></tr>
+<tr><td>Optimistic <code>@Version</code>, 5 attempts, exponential jitter (pure, gate off)</td><td>exhausted 107–125 of 250 calls per invocation (43–50%), 4 invocations</td><td>0</td><td>107–125 per 250 (rejected loudly; 409 via the API)</td></tr>
+<tr><td>Optimistic + opt-in single-JVM retry gate</td><td>0 exhausted, 3 invocations</td><td>0</td><td>0</td></tr>
+<tr><td>Pessimistic <code>PESSIMISTIC_WRITE</code> (<code>SELECT … FOR UPDATE</code>)</td><td>0 failures, 4 invocations</td><td>0</td><td>0</td></tr>
+</tbody>
+</table></div>
+<p>No speed ratio is claimed: optimistic batches completed less work than pessimistic ones.</p>
+<p>Readiness updates are expected to have low contention, so optimistic locking avoids holding a database lock while applying ordinary patches. If contention is sustained, optimistic retries increase latency and can exhaust the bound; pessimistic locking serializes writers and may increase waiting or deadlock exposure when transactions lock rows in different orders.</p>
+
+<h2 id="jfr">2. Where the CPU went (JFR)</h2>
+<ul>
+<li>In the steady-state profile, <code>BCrypt.key</code> accounted for 99.52% of 4,797 execution samples; machine CPU averaged 98.5%.</li>
+<li>Maximum Hikari pending was 0, with no material blocking events; database connections were not the constraint.</li>
+<li>Every request re-verified the BCrypt password hash because HTTP Basic credentials were sent on every request and the security context was not kept between requests.</li>
+</ul>
+<p><code>SecurityConfig</code> now stores HTTP Basic authentication in an <code>HttpSessionSecurityContextRepository</code>, so later requests with the session cookie are not re-hashed. Each load-driver worker gets its own <code>HttpClient</code> and <code>CookieManager</code>. An integration test confirms that a Basic-authenticated request creates a session and a later PATCH with only that session returns 200.</p>
+<figure><img src="../assets/img/txb-loadtest-setup.svg" alt="Load driver, application, database and monitoring test setup"><figcaption>Load-test setup and request path</figcaption></figure>
+<div class="table-scroll"><table>
+<thead><tr><th>Platform threads (median of 3 runs)</th><th>Before</th><th>After</th></tr></thead>
+<tbody>
+<tr><td>Throughput (req/s)</td><td>38.6</td><td>399.4</td></tr>
+<tr><td>p50 (ms)</td><td>1,280</td><td>110.6</td></tr>
+<tr><td>p95 (ms)</td><td>1,545</td><td>264.8</td></tr>
+<tr><td>p99 (ms)</td><td>2,132</td><td>398.3</td></tr>
+<tr><td>Errors / 409s</td><td>0 / 0</td><td>0 / 0</td></tr>
+<tr><td>Max Hikari pending</td><td>0</td><td>40</td></tr>
+<tr><td>App JVM user CPU, avg (profiling run)</td><td>71.5%</td><td>13.2%</td></tr>
+</tbody>
+</table></div>
+<p>The bottleneck moved to the 10-connection pool (40 of 50 workers waiting).</p>
+<p>Server-side sessions add state, timeout and fixation concerns (Spring Security's default session-fixation protection is kept; CSRF stays enabled for web routes and is ignored only for <code>/api/**</code>). For a multi-instance API, token authentication (OAuth2/JWT) avoids both per-request password hashing and server session state.</p>
+
+<h2 id="threads">3. Do virtual threads help here?</h2>
+<p>Virtual threads gave no throughput gain at either concurrency, and both modes were bound by the 10-connection pool. The 200-worker gap did not reproduce, so no thread-type difference is claimed.</p>
+<div class="table-scroll"><table>
+<thead><tr><th>Workers</th><th>Request threads</th><th>Throughput median (range), req/s</th><th>p50 median (range), ms</th><th>p95 median (range), ms</th><th>p99 median (range), ms</th><th>Errors / 409s</th><th>Max Hikari pending (range)</th></tr></thead>
+<tbody>
+<tr><td>50</td><td>Platform</td><td>383.4 (349.4–412.4)</td><td>112.5 (105.7–120.7)</td><td>293.4 (263.7–326.4)</td><td>440.9 (440.1–519.0)</td><td>0 / 0</td><td>40 (40–40)</td></tr>
+<tr><td>50</td><td>Virtual</td><td>357.0 (280.7–435.7)</td><td>124.8 (107.3–145.3)</td><td>298.3 (234.7–428.2)</td><td>427.9 (309.1–626.0)</td><td>0 / 0</td><td>40 (40–40)</td></tr>
+</tbody>
+</table></div>
+<p>Consistency check (closed loop, Little's law): 50 / 383.4 req/s ≈ 130 ms, in line with the p50 of 112.5 ms.</p>
+
+<h2 id="next">4. What I'd do next</h2>
+<p>Reset the database between cells and interleave the modes for a clean thread-type comparison; size the pool to what PostgreSQL can serve before comparing thread models again. For a multi-instance API, use token authentication (OAuth2/JWT).</p>
+
+<p class="note">Synthetic data on one laptop (app, PostgreSQL and load driver on the same machine); evidence is limited to this setup.</p>
+<p class="note">Built by Kakali Bandyopadhyay; AI assistance for analysis, review comments and formatting (details in FINDINGS).</p>
+
+<footer>Synthetic case study · <a href="../?track=operations">Portfolio</a></footer>
+</main>
+</body>
+</html>
