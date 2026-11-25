@@ -139,7 +139,7 @@ class PortfolioContentChecks(unittest.TestCase):
 
     def test_transformation_track_card_panel_short_link_and_case_study(self):
         canonical = "https://kakali-bandyopadhyay.github.io/?track=transformation"
-        self.assertIn('data-track-filter="operations" aria-pressed="false">Operations</button>\n  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false">Transformation</button>', HTML)
+        self.assertIn('data-track-filter="operations" aria-pressed="false">Operations</button>\n  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false" hidden data-parked="true">Transformation</button>', HTML)
         self.assertIn('transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"]', HTML)
         self.assertIn('<div class="feature-panel" data-feature-panel="transformation" hidden>', HTML)
         self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation", "engineering"].includes(track) ? track : "deal";', HTML)
