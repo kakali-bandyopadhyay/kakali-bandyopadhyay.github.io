@@ -79,7 +79,7 @@
 </dl>
 
 <nav class="toc" aria-label="Sections">
-  <a href="#design">Question and design</a><a href="#results">Results</a><a href="#platform">The platform</a><a href="#event-driven">Event-driven ingestion</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
+  <a href="#design">Question and design</a><a href="#results">Results</a><a href="#agents">Agents</a><a href="#platform">The platform</a><a href="#event-driven">Event-driven ingestion</a><a href="#checks">How numbers are checked</a><a href="#limits">What it does not claim</a>
 </nav>
 
 <h2 id="design">1. The question and the design</h2>
@@ -127,6 +127,23 @@
 </tbody>
 </table>
 </div>
+
+<h2 id="agents">Agents: LangGraph supervisor (v2) and Claude Agent SDK port (v3)</h2>
+<p>The v2 supervisor scored 20/36 question-runs, with routing 46/51, memory follow-ups 9/15, and USD 0.0023 per turn. The table compares the v3 scored run on first turns with each v2 first-turn baseline run.</p>
+<div class="table-scroll" role="region" aria-label="Agent v3 and v2 first-turn results" tabindex="0">
+<table>
+<thead><tr><th>Evaluation</th><th>Correct</th><th>Routing</th><th>Args</th><th>Verifier blocks</th><th>Guardrail denials</th><th>Median / total USD</th><th>Latency p50 / p95 (s)</th></tr></thead>
+<tbody>
+<tr><td>v3 scored run</td><td>2/12</td><td>12/12</td><td>6/12</td><td>6</td><td>1</td><td>0.02013895 / 0.25069815</td><td>13.47 / 21.26</td></tr>
+<tr><td>v2 first-turn run 1</td><td>8/12</td><td>11/12</td><td>11/12</td><td>2</td><td>0</td><td>0.00189825 / 0.02505375</td><td>8.48 / 15.46</td></tr>
+<tr><td>v2 first-turn run 2</td><td>7/12</td><td>11/12</td><td>11/12</td><td>3</td><td>0</td><td>0.0020295 / 0.0291435</td><td>9.41 / 15.97</td></tr>
+<tr><td>v2 first-turn run 3</td><td>8/12</td><td>12/12</td><td>12/12</td><td>3</td><td>0</td><td>0.00205275 / 0.0290475</td><td>8.91 / 14.95</td></tr>
+</tbody>
+</table>
+</div>
+<p>Routing was 12/12, while six verifier blocks stopped answers containing numbers not copied verbatim from the evidence. The lean port has no redraft loop, unlike v2 with MAX_DRAFTS=2; argument mismatches occurred on Q04, Q07, Q08–Q10 and Q12, with one guardrail denial.</p>
+<p>V2 used OpenAI models and v3 uses Claude, so this comparison combines framework and model effects; it is not a framework benchmark. The scored v3 run used Claude Agent SDK 0.2.189 and was one run of the first turn of each frozen question.</p>
+<p><a href="https://github.com/kakali-bandyopadhyay/vol-forecast-lab/blob/main/FINDINGS.md#agent-v3-claude-agent-sdk-port-lean-nov-2026">Full v3 findings and per-question results</a></p>
 
 <h2 id="platform">3. The platform</h2>
 <p>The forecasting study and the document pipeline are separate by design: retrieval supplies evidence and citations, not text features to the forecast models. The platform moves each document through a traceable data path, with parity checks between local and cloud outputs.</p>
