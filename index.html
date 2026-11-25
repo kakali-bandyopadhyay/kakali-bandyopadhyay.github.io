@@ -56,11 +56,12 @@
   <button type="button" class="filter-chip" data-track-filter="all" aria-pressed="true">All</button>
   <button type="button" class="filter-chip" data-track-filter="ai" aria-pressed="false">AI &amp; ML</button>
   <button type="button" class="filter-chip" data-track-filter="private-markets" aria-pressed="false">Private markets</button>
-  <button type="button" class="filter-chip" data-track-filter="m-and-a" aria-pressed="false">M&amp;A</button>
+  <!-- Parked tracks: remove "hidden data-parked" to show the chip again. URLs ?track=m-and-a and ?track=transformation keep working. -->
+  <button type="button" class="filter-chip" data-track-filter="m-and-a" aria-pressed="false" hidden data-parked="true">M&amp;A</button>
   <button type="button" class="filter-chip" data-track-filter="data" aria-pressed="false">Data</button>
   <button type="button" class="filter-chip" data-track-filter="quant" aria-pressed="false">Quant</button>
   <button type="button" class="filter-chip" data-track-filter="operations" aria-pressed="false">Operations</button>
-  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false">Transformation</button>
+  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false" hidden data-parked="true">Transformation</button>
   <button type="button" class="filter-chip" data-track-filter="engineering" aria-pressed="false">Engineering</button>
 </div>
 
