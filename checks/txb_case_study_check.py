@@ -9,7 +9,18 @@ ROOT = Path(__file__).resolve().parents[1]
 TXB = ROOT.parent / "txb-readiness-workbench"
 PAGE_PATH = ROOT / "case-studies" / "txb-readiness-workbench.html"
 PAGE = PAGE_PATH.read_text(encoding="utf-8")
+INDEX = (ROOT / "index.html").read_text(encoding="utf-8")
 FINDINGS = (TXB / "FINDINGS.md").read_text(encoding="utf-8")
+
+
+def _featured_txb_markup():
+    panel = re.search(
+        r'<div class="feature-panel" data-feature-panel="engineering" hidden>(.*?)</div>\s*</div>\s*</div>',
+        INDEX,
+        re.S,
+    )
+    assert panel is not None, "engineering feature panel is missing"
+    return panel.group(1)
 
 
 class PageParser(HTMLParser):
@@ -107,15 +118,40 @@ def test_banned_terms_are_absent_from_case_study():
 
 
 def test_portfolio_card_links_to_case_study_first():
-    index = (ROOT / "index.html").read_text(encoding="utf-8")
-    match = re.search(r'<div class="card" data-tracks="operations">(.*?)</div>', index, re.S)
-    assert match is not None
-    card = match.group(1)
-    assert "Lost-update race fixed to 0 lost; JFR-led fix 38.6 → 399.4 req/s (synthetic, single workstation)." in card
+    card = _featured_txb_markup()
+    assert '<div class="card" data-tracks="operations engineering" data-featured-track="engineering">' in INDEX
+    assert '<div class="card feature feature-build">' in card
+    assert '<img src="assets/img/txb-loadtest-setup.svg"' in card
+    assert "<h3>Transaction readiness workbench: does every concurrent update survive?</h3>" in card
+    assert "Fifty requests updating the same record at once silently lost 45 of 50 changes – and the service handled under 40 requests a second for a reason that wasn't the database." in card
+    assert "A Java 25 / Spring Boot 4.1.2 service on PostgreSQL." in card
+    assert "optimistic locking (@Version, bounded back-off, HTTP 409) and pessimistic locking (SELECT … FOR UPDATE) are compared" in card
+    assert "5 of 50 updates survived before the fix; 0 lost after." in card
+    assert "JFR traced 99.5% of CPU samples to password hashing" in card
+    assert "38.6 → 399.4 req/s and cut p95 1,545 → 264.8 ms (median of 3 runs)." in card
+    assert "Virtual threads added no throughput – the 10-connection pool was the limit. 71 tests in CI. Synthetic data, single workstation." in card
+    assert all(f'<span class="tag">{tag}</span>' in card for tag in ("Backend engineering", "Java", "Concurrency"))
     links = re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', card, re.S)
-    assert re.sub(r"<[^>]+>", "", links[0][1]).strip() == "Case study"
-    assert links[0][0] == "case-studies/txb-readiness-workbench.html"
+    assert [(re.sub(r"<[^>]+>", "", label).strip(), href) for href, label in links] == [
+        ("Case study", "case-studies/txb-readiness-workbench.html"),
+        ("Code", "https://github.com/kakali-bandyopadhyay/txb-readiness-workbench"),
+        ("Findings", "https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/FINDINGS.md"),
+        ("ADR-001", "https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/docs/adr/ADR-001-readiness-action-locking.md"),
+    ]
     assert (ROOT / links[0][0]).is_file()
+
+
+def test_every_number_in_featured_txb_card_appears_verbatim_in_findings():
+    card = _featured_txb_markup()
+    numbers = re.findall(r"(?<![A-Za-z])\d+(?:,\d{3})*(?:\.\d+)*%?", card)
+    missing = sorted({number for number in numbers if number not in FINDINGS})
+    assert not missing, f"featured card numbers absent from FINDINGS.md: {missing}"
+
+
+def test_featured_txb_card_avoids_banned_words():
+    card = _featured_txb_markup().lower()
+    for term in ("personal", "laptop", "hand-coded", "self-directed"):
+        assert not re.search(rf"(?<![\w-]){re.escape(term)}(?![\w-])", card), term
 
 
 def test_phase_two_section_is_no_longer_duplicated():

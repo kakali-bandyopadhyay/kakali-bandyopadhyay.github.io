@@ -88,7 +88,7 @@ class PortfolioContentChecks(unittest.TestCase):
         self.assertEqual(PAGE.panels["deal"]["title"], DEAL_TITLE)
         self.assertEqual(PAGE.panels["ai"]["title"], LIFE_AI_TITLE)
         self.assertEqual(PAGE.panels["private-markets"]["title"], PE_TITLE)
-        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";', HTML)
+        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation", "engineering"].includes(track) ? track : "deal";', HTML)
         self.assertIn('const queryTrack = url.searchParams.get("track");', HTML)
 
     def test_insurance_card_remains_in_ai_grid(self):
@@ -142,7 +142,7 @@ class PortfolioContentChecks(unittest.TestCase):
         self.assertIn('data-track-filter="operations" aria-pressed="false">Operations</button>\n  <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false">Transformation</button>', HTML)
         self.assertIn('transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"]', HTML)
         self.assertIn('<div class="feature-panel" data-feature-panel="transformation" hidden>', HTML)
-        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";', HTML)
+        self.assertIn('const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation", "engineering"].includes(track) ? track : "deal";', HTML)
         grid = next(c for c in PAGE.cards if c["title"] == "Enterprise transformation delivery review")
         self.assertEqual(grid["tracks"], ["transformation", "operations"])
         self.assertEqual(grid["featured_track"], "transformation")
@@ -390,7 +390,7 @@ class MarginFinancingLabChecks(unittest.TestCase):
                 self.assertNotIn(term, document)
 
     def test_quant_card_and_feature_panel(self):
-        grid_prefix = '<div class="card" data-tracks="quant data" data-featured-track="quant">'
+        grid_prefix = '<div class="card" data-tracks="quant data engineering" data-featured-track="quant">'
         panel_prefix = '<div class="feature-panel" data-feature-panel="quant" hidden>'
         self.assertEqual(HTML.count(grid_prefix), 1)
         self.assertEqual(HTML.count(panel_prefix), 1)
@@ -418,9 +418,9 @@ class MarginFinancingLabChecks(unittest.TestCase):
                 self.assertNotIn(term, document)
 
     def test_quant_card_and_feature_panel(self):
-        self.assertEqual(HTML.count('<div class="card" data-tracks="quant data" data-featured-track="quant">'), 1)
+        self.assertEqual(HTML.count('<div class="card" data-tracks="quant data engineering" data-featured-track="quant">'), 1)
         self.assertEqual(HTML.count('<div class="feature-panel" data-feature-panel="quant" hidden>'), 1)
-        card = re.search(r'<div class="card" data-tracks="quant data" data-featured-track="quant">(.*?)</div>', HTML, re.S).group(1)
+        card = re.search(r'<div class="card" data-tracks="quant data engineering" data-featured-track="quant">(.*?)</div>', HTML, re.S).group(1)
         expected_tags = ["Quant research", "Optimisation", "Treasury", "Synthetic data"]
         self.assertEqual(re.findall(r'<span class="tag">(.*?)</span>', card), expected_tags)
         self.assertIn('src="assets/img/margin-and-financing-lab-thumb.svg"', HTML)
@@ -443,7 +443,7 @@ class MarginFinancingLabChecks(unittest.TestCase):
         self.assertIn('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">', short)
 
     def test_volatility_card_moves_to_quant_without_changing_data_panel(self):
-        self.assertIn('<div class="card" data-tracks="data ai quant" data-featured-track="data">', HTML)
+        self.assertIn('<div class="card" data-tracks="data ai quant engineering" data-featured-track="data">', HTML)
         self.assertIn('<div class="feature-panel" data-feature-panel="data" hidden>', HTML)
         self.assertIn('src="assets/img/vol-forecast-lab-thumb.svg"', HTML)
         self.assertIn('<h3>Volatility forecasting lab: pre-registered study and data/AI platform</h3>', HTML)

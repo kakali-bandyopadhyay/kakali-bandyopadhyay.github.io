@@ -14,7 +14,8 @@
     ai: ["Applied ML and GenAI", "Forecasting, retrieval, evaluation and controls.", "Kakali Bandyopadhyay · Applied AI: use-case assessment, evaluation and controls"],
     "m-and-a": ["Technology M&A: diligence, separation and integration", "IT due diligence red flags, application disposition, TSA run-off and exit, Day 1 readiness and 100-day plans.", "Technology M&A builds – Portfolio"],
     operations: ["Operations and controls builds", "Transaction-operations readiness, allocation controls and audit trails; process mining and human-gated automation.", "Operations and controls builds – Portfolio"],
-    transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"]
+    transformation: ["Enterprise transformation and delivery", "Portfolio, capacity, vendor and commercial decisions, with every figure traced to its source.", "Transformation and delivery builds – Portfolio"],
+    engineering: ["Backend engineering and agent systems", "Java services that stay correct under concurrency and replay; agent workflows with guardrails, verifiers and pre-registered evals.", "Backend engineering and agent systems – Portfolio"]
   };
   window.__heroTracks = tracks;
   const track = new URLSearchParams(location.search).get("track");
@@ -60,6 +61,7 @@
   <button type="button" class="filter-chip" data-track-filter="quant" aria-pressed="false">Quant</button>
   <button type="button" class="filter-chip" data-track-filter="operations" aria-pressed="false">Operations</button>
   <button type="button" class="filter-chip" data-track-filter="transformation" aria-pressed="false">Transformation</button>
+  <button type="button" class="filter-chip" data-track-filter="engineering" aria-pressed="false">Engineering</button>
 </div>
 
 <div id="featured-slot" aria-live="polite">
@@ -158,6 +160,25 @@
     </div>
   </div>
 </div>
+<div class="feature-panel" data-feature-panel="engineering" hidden>
+  <h2>Featured build</h2>
+  <div class="card feature feature-build">
+    <img src="assets/img/txb-loadtest-setup.svg" alt="Load-test setup: closed-loop workers update records through HTTP, with a warm-up period followed by a measured run that records throughput and latency">
+    <div class="feature-copy">
+      <span class="tag">Backend engineering</span><span class="tag">Java</span><span class="tag">Concurrency</span>
+      <h3>Transaction readiness workbench: does every concurrent update survive?</h3>
+      <p><strong>Problem</strong> Fifty requests updating the same record at once silently lost 45 of 50 changes – and the service handled under 40 requests a second for a reason that wasn't the database.</p>
+      <p><strong>What it does</strong> A Java 25 / Spring Boot 4.1.2 service on PostgreSQL. A failing test reproduces the lost-update race; optimistic locking (@Version, bounded back-off, HTTP 409) and pessimistic locking (SELECT … FOR UPDATE) are compared; JFR profiling and a closed-loop load driver locate the CPU bottleneck.</p>
+      <p><strong>Evidence</strong> 5 of 50 updates survived before the fix; 0 lost after. JFR traced 99.5% of CPU samples to password hashing; session-backed auth raised throughput 38.6 → 399.4 req/s and cut p95 1,545 → 264.8 ms (median of 3 runs). Virtual threads added no throughput – the 10-connection pool was the limit. 71 tests in CI. Synthetic data, single workstation.</p>
+      <p class="links">
+        <a href="case-studies/txb-readiness-workbench.html">Case study</a>
+        <a href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench">Code</a>
+        <a href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/FINDINGS.md">Findings</a>
+        <a href="https://github.com/kakali-bandyopadhyay/txb-readiness-workbench/blob/main/docs/adr/ADR-001-readiness-action-locking.md">ADR-001</a>
+      </p>
+    </div>
+  </div>
+</div>
 <div class="feature-panel" data-feature-panel="operations" hidden>
   <h2>Featured build</h2>
   <div class="card feature feature-build">
@@ -233,7 +254,7 @@
       <a href="https://github.com/kakali-bandyopadhyay/genai-adoption-control-tower">Code</a>
     </p>
   </div>
-  <div class="card" data-tracks="operations">
+  <div class="card" data-tracks="operations engineering" data-featured-track="engineering">
     <span class="tag">Java</span><span class="tag">Concurrency</span>
     <h3>Transaction readiness workbench</h3>
     <p>Lost-update race fixed to 0 lost; JFR-led fix 38.6 → 399.4 req/s (synthetic, single workstation).</p>
@@ -290,7 +311,7 @@
       <a href="https://github.com/kakali-bandyopadhyay/ai-ready-data-warehouse/blob/main/FINDINGS.md">Findings</a>
     </p>
   </div>
-  <div class="card" data-tracks="data ai quant" data-featured-track="data">
+  <div class="card" data-tracks="data ai quant engineering" data-featured-track="data">
     <span class="tag">Data</span><span class="tag">Quant research</span><span class="tag">Agents</span><span class="tag">SQS&nbsp;·&nbsp;Lambda&nbsp;·&nbsp;DynamoDB</span><span class="tag">Public data</span>
     <h3>Volatility forecasting lab: pre-registered study and data/AI platform</h3>
     <p>A pre-registered walk-forward study (HAR, HAR-X, GARCH, MLP) plus an FOMC document pipeline through Kafka, an AWS serverless lake, Spark, hybrid OpenSearch + Qdrant search and a Redis cache; a LangGraph agent that may only repeat computed numbers; MLflow, drift monitoring, an Airflow DAG and a Kubernetes (kind) deployment. Clark–West p = 0.0009 outside Feb–Apr 2020; fused recall@5 0.589; agent 0.844 (38/45). Public data.</p>
@@ -322,7 +343,7 @@
       <a href="https://github.com/kakali-bandyopadhyay/tsmom-panel-study">Code</a>
     </p>
   </div>
-  <div class="card" data-tracks="quant data" data-featured-track="quant">
+  <div class="card" data-tracks="quant data engineering" data-featured-track="quant">
     <span class="tag">Quant research</span><span class="tag">Optimisation</span><span class="tag">Treasury</span><span class="tag">Synthetic data</span>
     <h3>Margin and financing lab</h3>
     <p>Allocates a synthetic multi-PM book across prime brokers at minimum financing and margin cost, then attributes margin to PMs – pre-registered, stress-tested and calibrated to public-market proxies, with a validation-style model document.</p>
@@ -397,7 +418,7 @@ function applyTrack(track, { updateUrl = false, scroll = false } = {}) {
     const tracks = card.dataset.tracks.split(/\s+/);
     card.hidden = (track !== "all" && !tracks.includes(track)) || card.dataset.featuredTrack === track;
   });
-  const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation"].includes(track) ? track : "deal";
+  const featureTrack = ["ai", "data", "operations", "m-and-a", "private-markets", "transformation", "engineering"].includes(track) ? track : "deal";
   const panelTrack = track === "quant" ? "quant" : featureTrack;
   const anyCard = cards.some((card) => !card.hidden);
   buildsHeading.hidden = !anyCard;
