@@ -111,7 +111,7 @@ def test_portfolio_card_links_to_case_study_first():
     match = re.search(r'<div class="card" data-tracks="operations">(.*?)</div>', index, re.S)
     assert match is not None
     card = match.group(1)
-    assert "Lost-update race fixed to 0 lost; JFR-led fix 38.6 → 399.4 req/s (synthetic, laptop)." in card
+    assert "Lost-update race fixed to 0 lost; JFR-led fix 38.6 → 399.4 req/s (synthetic, single workstation)." in card
     links = re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', card, re.S)
     assert re.sub(r"<[^>]+>", "", links[0][1]).strip() == "Case study"
     assert links[0][0] == "case-studies/txb-readiness-workbench.html"

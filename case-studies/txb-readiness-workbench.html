@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fifty writers, one row: concurrency and JFR case study</title>
-<meta name="description" content="Synthetic data, laptop benchmark: a lost-update race, locking trade-offs and a JFR-led authentication fix.">
+<meta name="description" content="Synthetic data, single-workstation benchmark: a lost-update race, locking trade-offs and a JFR-led authentication fix.">
 <link rel="icon" href="/assets/favicon-32x32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="stylesheet" href="../assets/style.css?v=20261125t1">
@@ -13,7 +13,7 @@
 <header class="cs-hero">
 <div class="cs-hero-inner">
 <nav><a href="../?track=operations">← Portfolio</a></nav>
-<span class="cs-pill">Case study · synthetic data · laptop benchmark · Java 25 / Spring Boot 4.1.2</span>
+<span class="cs-pill">Case study · synthetic data · single-workstation benchmark · Java 25 / Spring Boot 4.1.2</span>
 <h1>Fifty writers, one row: does every update survive – and where did the CPU go?</h1>
 <p class="cs-lede">Lost-update race reproduced (5 of 50 updates survived) and fixed to 0 lost · JFR traced 99.5% of CPU samples to password hashing · throughput 38.6 → 399.4 req/s, p95 1,545 → 264.8 ms (median of 3 runs).</p>
 <div class="cs-chips"><span>Java 25</span><span>Spring Boot 4.1.2</span><span>PostgreSQL 17.6</span><span>JPA @Version</span><span>SELECT … FOR UPDATE</span><span>JFR</span><span>HikariCP</span><span>Testcontainers</span></div>
@@ -98,7 +98,7 @@
 <h2 id="next">4. What I'd do next</h2>
 <p>Reset the database between cells and interleave the modes for a clean thread-type comparison; size the pool to what PostgreSQL can serve before comparing thread models again. For a multi-instance API, use token authentication (OAuth2/JWT).</p>
 
-<p class="note">Synthetic data on one laptop (app, PostgreSQL and load driver on the same machine); evidence is limited to this setup.</p>
+<p class="note">Synthetic data on a single workstation (app, PostgreSQL and load driver on the same machine); evidence is limited to this setup.</p>
 
 <footer>Synthetic case study · <a href="../?track=operations">Portfolio</a></footer>
 </main>
